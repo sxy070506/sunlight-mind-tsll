@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>树洞社区 · 晴心 SunlightMind</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="../assets/css/site_tsll.css" />
+<style>
+  /* === 树洞社区 community_tsll === */
+  .hero-tree{
+    background:linear-gradient(135deg,#FFE4B5 0%,#A6D8E7 100%);
+    padding:48px 36px;border-radius:20px;margin-bottom:24px;
+    position:relative;overflow:hidden;
+  }
+  .hero-tree::before{content:"";position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,#FFD580,transparent 70%);animation:sun 6s ease-in-out infinite}
+  @keyframes sun{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  .hero-tree h1{font-size:30px;font-weight:800;position:relative;z-index:2}
+  .hero-tree p{color:#5e4f3f;margin-top:8px;position:relative;z-index:2;max-width:560px}
+  .hero-tree .ph-tree{
+    position:absolute;right:30px;bottom:-20px;width:200px;height:180px;border-radius:16px;
+    background:linear-gradient(180deg,rgba(123,196,160,.5),rgba(166,216,231,.5));
+    display:flex;align-items:center;justify-content:center;font-size:64px;
+    border:2px dashed rgba(255,255,255,.7);
+    overflow:hidden;
+  }
+  .hero-tree .ph-tree img,.empty .ph-empty img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .hero-tree .ph-tree.has-real-img,.empty .ph-empty.has-real-img{border:0}
+  .hero-tree .ph-tree.has-real-img .img-fallback,.empty .ph-empty.has-real-img .img-fallback{display:none}
+  .hero-tree .ph-tree .img-fallback,.empty .ph-empty .img-fallback{position:relative;z-index:1}
+  .hero-tree .ph-tree::after{content:"图片位:大树 / 树洞 (assets/images/tree.png)";position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:10px;color:#5e4f3f}
+
+  .layout{display:grid;grid-template-columns:1fr 300px;gap:20px}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}}
+
+  /* 发帖盒子 */
+  .compose{background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+  .compose-row{display:flex;gap:12px;align-items:flex-start}
+  .compose-row .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#FFE4B5,#FFB7B2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .compose-row textarea{flex:1;border:2px solid var(--rule);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:14px;resize:vertical;min-height:90px;outline:none;transition:.2s}
+  .compose-row textarea:focus{border-color:var(--accent)}
+  .compose-tools{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-left:58px}
+  .mood-pick{display:flex;gap:6px}
+  .mood-pick span{width:34px;height:34px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:.2s}
+  .mood-pick span:hover,.mood-pick span.on{background:linear-gradient(135deg,#FFE4B5,#F5A623);color:#fff;transform:scale(1.1)}
+
+  /* 搜索栏 */
+  .search-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .search-bar input{flex:1;padding:10px 16px;border:2px solid var(--rule);border-radius:12px;font-size:14px;outline:none;transition:.2s;min-width:200px}
+  .search-bar input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(245,166,35,.12)}
+  .search-bar button{padding:10px 20px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+  .search-bar button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(245,166,35,.3)}
+
+  /* 标签筛选 */
+  .filter{display:flex;gap:8px;overflow-x:auto;padding:14px 0;margin-bottom:14px}
+  .filter span{padding:6px 16px;border-radius:999px;background:#fff;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap;border:1.5px solid var(--rule);transition:.2s}
+  .filter span:hover{border-color:var(--accent);color:var(--accent)}
+  .filter span.on{background:linear-gradient(135deg,#F5A623,#FF8C42);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(245,166,35,.3)}
+
+  /* 帖子卡片 */
+  .post{background:#fff;border-radius:16px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;animation:slideUp .5s ease-out;transition:.25s;position:relative}
+  .post:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(245,166,35,.18)}
+  .post.pinned{border-left:4px solid var(--accent)}
+  .post.pinned::before{content:"📌";position:absolute;top:12px;right:12px;font-size:14px;opacity:.7}
+  @keyframes slideUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+  .post-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .post-head .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#A6D8E7,#7BC4A0);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}
+  .post-head .name{font-weight:700}
+  .post-head .time{font-size:12px;color:var(--muted)}
+  .post-content{font-size:15px;line-height:1.85;color:#5e4f3f;white-space:pre-wrap}
+  .post-tags{margin-top:12px}
+  .post-action{display:flex;gap:18px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--rule)}
+  .post-action span{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;transition:.2s}
+  .post-action span:hover{color:var(--accent)}
+  .post-action span.liked{color:#E07A5F}
+  .post-action .report{color:var(--muted);font-size:12px;margin-left:auto}
+  .post-action .report:hover{color:var(--err)}
+
+  /* 评论 */
+  .comments{margin-top:14px;padding-top:14px;border-top:1px dashed var(--rule);display:none}
+  .comments.show{display:block}
+  .cm-item{padding:10px 0;border-bottom:1px dashed var(--rule);font-size:13px;color:#5e4f3f}
+  .cm-item:last-child{border-bottom:none}
+  .cm-item b{color:var(--accent2);margin-right:8px}
+  .cm-input{display:flex;gap:8px;margin-top:10px}
+  .cm-input input{flex:1;padding:8px 12px;border-radius:999px;border:1.5px solid var(--rule);outline:none;font-size:13px}
+  .cm-input button{padding:8px 18px;border-radius:999px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:13px}
+
+  /* 举报弹窗 */
+  .report-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:200}
+  .report-modal.show{display:flex}
+  .report-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+  .report-box h4{margin-bottom:12px;font-size:16px}
+  .report-box label{display:block;margin-bottom:8px;font-size:13px;color:var(--muted);cursor:pointer}
+  .report-box label input{margin-right:6px}
+  .report-box .report-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
+
+  /* 侧边栏基础 */
+  .side-card{background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+  .side-card h4{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .hot-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--rule);font-size:13px;cursor:pointer;transition:.2s}
+  .hot-item:hover{color:var(--accent);transform:translateX(3px)}
+  .hot-item:last-child{border-bottom:none}
+  .hot-rank{width:22px;height:22px;border-radius:6px;background:var(--bg2);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-right:8px;font-weight:700}
+  .hot-item:nth-child(1) .hot-rank{background:#E07A5F;color:#fff}
+  .hot-item:nth-child(2) .hot-rank{background:#F5A623;color:#fff}
+  .hot-item:nth-child(3) .hot-rank{background:#FFB347;color:#fff}
+
+  .rule-item{font-size:13px;color:var(--muted);padding:6px 0;line-height:1.7}
+  .rule-item::before{content:"·";color:var(--accent);font-weight:900;margin-right:6px}
+
+  .anon-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+  .anon-toggle input{accent-color:var(--accent)}
+
+  .empty{text-align:center;padding:60px;color:var(--muted)}
+  .empty .ph-empty{width:160px;height:120px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,#FFE4B5,#A6D8E7);display:flex;align-items:center;justify-content:center;font-size:48px;border:2px dashed rgba(255,255,255,.7);position:relative;overflow:hidden}
+  .empty .ph-empty::after{content:"图片位:空状态插画 (assets/images/empty.png)";position:absolute;bottom:6px;left:0;right:0;font-size:10px;color:#5e4f3f}
+
+  /* ========== 新增侧边模块专属样式 ========== */
+  .article-item{padding:10px 0;border-bottom:1px dashed var(--rule);font-size:13px;line-height:1.7;cursor:pointer;transition:.2s}
+  .article-item:last-child{border-bottom:none}
+  .article-item:hover{color:var(--accent);padding-left:4px}
+  .article-item .art-tag{display:inline-block;font-size:11px;padding:2px 6px;border-radius:4px;background:var(--bg2);margin-right:6px}
+
+  .skill-list li{font-size:13px;line-height:1.8;padding:6px 0;position:relative;padding-left:16px}
+  .skill-list li::before{content:"✓";color:var(--accent);position:absolute;left:0;font-weight:bold}
+
+  .quote-card{background:linear-gradient(135deg,#FFF3E0,#E8F4F8);border-radius:12px;padding:16px;margin-top:8px}
+  .quote-card p{font-size:14px;line-height:1.8;color:#4a4035;font-style:italic;margin:0}
+  .quote-btn{width:100%;margin-top:12px;padding:8px 0;border-radius:999px;border:none;background:#fff;color:var(--accent);font-size:13px;cursor:pointer;transition:.2s}
+  .quote-btn:hover{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap" style="padding-top:0">
+
+  <section class="hero-tree">
+    <h1>🌳 树洞 · 把心事悄悄说给世界</h1>
+    <p>这里是匿名安全的港湾。所有发布支持完全匿名，每一条心情都会被温柔接住。<br />请尊重彼此，不传播负能量，让阳光照进来。</p>
+    <div class="ph-tree"><img src="../assets/images/tree.png" alt="树洞插画" onload="this.parentElement.classList.add('has-real-img')" onerror="this.style.display='none'"><span class="img-fallback">🌲</span></div>
+  </section>
+
+  <div class="layout">
+    <!-- 左:主流 -->
+    <main>
+      <!-- 发帖 -->
+      <section class="compose">
+        <div class="compose-row">
+          <div class="av" id="composeAv">😊</div>
+          <textarea id="composeText" placeholder="今天心情怎么样? 安心倾诉吧..."></textarea>
+        </div>
+        <div class="compose-tools">
+          <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+            <div class="mood-pick" id="moodPick">
+              <span data-mood="开心">😄</span>
+              <span data-mood="平静">😌</span>
+              <span data-mood="低落">😢</span>
+              <span data-mood="焦虑">😰</span>
+              <span data-mood="疲惫">😪</span>
+            </div>
+            <label class="anon-toggle"><input type="checkbox" id="anonChk" checked />匿名发布</label>
+          </div>
+          <button class="btn btn-primary" id="postBtn">发布 ➤</button>
+        </div>
+      </section>
+
+      <!-- 搜索 -->
+      <div class="search-bar">
+        <input id="searchInput" placeholder="🔍 搜索帖子内容..." />
+        <button id="searchBtn">搜索</button>
+        <button class="btn btn-ghost" id="clearSearchBtn" style="padding:10px 16px;font-size:13px">清空</button>
+      </div>
+
+      <!-- 筛选 -->
+      <div class="filter" id="filterBar">
+        <span class="on" data-tag="全部">🌟 全部</span>
+        <span data-tag="开心">😄 开心</span>
+        <span data-tag="平静">😌 平静</span>
+        <span data-tag="低落">😢 低落</span>
+        <span data-tag="焦虑">😰 焦虑</span>
+        <span data-tag="疲惫">😪 疲惫</span>
+        <span data-tag="求助">🆘 求助</span>
+        <span data-tag="鼓励">🤝 鼓励</span>
+      </div>
+
+      <!-- 帖子流 -->
+      <div id="postList"></div>
+    </main>
+
+    <aside>
+      <section class="side-card">
+        <h4>🔥 热门话题</h4>
+        <div class="hot-item"><span><span class="hot-rank">1</span>期末复习焦虑怎么办</span><span style="color:var(--muted);font-size:12px">2.3k</span></div>
+        <div class="hot-item"><span><span class="hot-rank">2</span>失恋了好难受</span><span style="color:var(--muted);font-size:12px">1.8k</span></div>
+        <div class="hot-item"><span><span class="hot-rank">3</span>跟室友闹矛盾</span><span style="color:var(--muted);font-size:12px">1.2k</span></div>
+        <div class="hot-item"><span><span class="hot-rank">4</span>找工作压力好大</span><span style="color:var(--muted);font-size:12px">980</span></div>
+        <div class="hot-item"><span><span class="hot-rank">5</span>今天阳光好好</span><span style="color:var(--muted);font-size:12px">760</span></div>
+      </section>
+
+      <section class="side-card">
+        <h4>💛 社区公约</h4>
+        <div class="rule-item">真诚倾诉,温柔回应</div>
+        <div class="rule-item">不传播负面情绪与极端言论</div>
+        <div class="rule-item">尊重隐私,不打听不暴露</div>
+        <div class="rule-item">遇严重困扰建议联系专业心理咨询</div>
+        <div class="rule-item">违规内容将由系统折叠</div>
+      </section>
+
+      <!-- 心理科普小文章 -->
+      <section class="side-card">
+        <h4>📖 心理科普短文</h4>
+        <div class="article-item">
+          <span class="art-tag">情绪</span>接纳负面情绪，本身就是自愈
+        </div>
+        <div class="article-item">
+          <span class="art-tag">内耗</span>停止精神内耗：不必过度自我反思
+        </div>
+        <div class="article-item">
+          <span class="art-tag">焦虑</span>广泛性焦虑：为什么总是莫名心慌
+        </div>
+        <div class="article-item">
+          <span class="art-tag">人际</span>讨好型人格：学会拒绝不是自私
+        </div>
+        <div class="article-item">
+          <span class="art-tag">独处</span>高质量独处，远胜于无效社交
+        </div>
+      </section>
+
+      <!-- 新增2：实用情绪调节方法 -->
+      <section class="side-card">
+        <h4>🧘 日常情绪调节技巧</h4>
+        <ul class="skill-list" style="padding-left:0;margin:0;list-style:none">
+          <li>情绪崩溃时：深呼吸4秒吸气、6秒呼气，平复心率</li>
+          <li>精神内耗时：立刻起身行动，打断胡思乱想闭环</li>
+          <li>压力过大时：书写情绪日记，把烦恼具象化</li>
+          <li>低落难过时：接触自然光，出门散步15分钟</li>
+          <li>睡前焦虑时：远离手机，减少碎片化信息刺激</li>
+          <li>自我否定时：像安慰朋友一样温柔对待自己</li>
+        </ul>
+      </section>
+
+      <!-- 新增3：每日治愈短句 -->
+      <section class="side-card">
+        <h4>💛 今日治愈文案</h4>
+        <div class="quote-card">
+          <p id="dailyQuote">风会带走所有的不安，你慢慢来，一切都来得及。</p>
+        </div>
+        <button class="quote-btn" id="changeQuoteBtn">换一句温柔治愈</button>
+      </section>
+    </aside>
+  </div>
+
+</div>
+
+<!-- 举报弹窗 -->
+<div class="report-modal" id="reportModal">
+  <div class="report-box">
+    <h4>🚩 举报内容</h4>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">请选择举报原因，我们会尽快处理</p>
+    <label><input type="radio" name="reportReason" value="spam" checked /> 垃圾广告 / 刷屏</label>
+    <label><input type="radio" name="reportReason" value="abuse" /> 人身攻击 / 辱骂</label>
+    <label><input type="radio" name="reportReason" value="illegal" /> 违法违规内容</label>
+    <label><input type="radio" name="reportReason" value="privacy" /> 侵犯隐私</label>
+    <label><input type="radio" name="reportReason" value="other" /> 其他原因</label>
+    <div class="report-actions">
+      <button class="btn btn-ghost" id="cancelReport">取消</button>
+      <button class="btn btn-primary" id="confirmReport">确认举报</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/site_tsll.js"></script>
+<script>
+  injectTopbar('community');
+  injectContactBar();
+  const u = JSON.parse(localStorage.getItem('sm_currentUser')||'null');
+  if(u){ document.getElementById('composeAv').textContent = u.avatar||'😊'; }
+
+  const KEY='sm_community';
+  const SEED=[
+    {id:'p1', anon:true, name:'匿名树洞', avatar:'🍀', mood:'低落', text:'今天考试又挂了一门,感觉自己怎么努力都比不上别人。有时候真的想放弃。',  time:Date.now()-3600*1000*2, likes:24, liked:false, cms:[{n:'匿名暖阳',t:'抱抱你呀,挂科真的不代表你不行,我也挂过呢,后来都补回来啦'},{n:'匿名向日葵',t:'一次失败不能定义你,你已经在努力了'}], pinned:false, reported:false},
+    {id:'p2', anon:true, name:'匿名星星',  avatar:'⭐', mood:'平静', text:'今天去操场跑了5圈,跑完之后心情真的好很多。有时候不开心就出去走走吧,阳光会治愈一切。', time:Date.now()-3600*1000*5, likes:88, liked:true,  cms:[{n:'匿名云朵',t:'我也喜欢跑步!'}], pinned:false, reported:false},
+    {id:'p3', anon:false,name:'糖醋排骨',avatar:'🌸', mood:'开心', text:'答辩通过啦!感谢这一路上陪我熬夜陪我哭的小伙伴,毕业快乐!', time:Date.now()-3600*1000*8, likes:156, liked:false, cms:[{n:'匿名月光',t:'恭喜呀!毕业快乐'},{n:'匿名彩虹',t:'😭真好真好'}], pinned:true, reported:false},
+    {id:'p4', anon:true, name:'匿名月亮',  avatar:'🌙', mood:'焦虑', text:'最近总是睡不着,凌晨三四点还在刷手机。脑子里很多事情,但又什么都不想做。怎么办...', time:Date.now()-3600*1000*12, likes:42, liked:false, cms:[{n:'匿名熊熊',t:'试试睡前冥想10分钟,我用了一周改善很多'},{n:'匿名清风',t:'卸载社交软件睡前不看屏幕'},{n:'匿名小鱼',t:'抱抱'}], pinned:false, reported:false},
+    {id:'p5', anon:true, name:'匿名小鸟',  avatar:'🐤', mood:'求助', text:'有没有人和家人关系不好的?每次打电话回家都吵架,可是我又不想冷战。', time:Date.now()-3600*1000*20, likes:38, liked:false, cms:[{n:'匿名星星',t:'我也是,后来发现是因为彼此不了解,试着写信吧'}], pinned:false, reported:false},
+    {id:'p6', anon:true, name:'匿名糖果',  avatar:'🍬', mood:'鼓励', text:'今天分享一句话给大家:你不必完美,只需要真实。无论你是什么样子,都值得被爱。晚安~', time:Date.now()-3600*1000*30, likes:201, liked:true,  cms:[], pinned:true, reported:false}
+  ];
+  let posts = JSON.parse(localStorage.getItem(KEY)||'null')||SEED;
+  let activeTag='全部', activeMood=null;
+  let searchQuery = '';
+  let reportTargetId = null;
+
+  function timeAgo(t){
+    const d=Date.now()-t, h=d/3600/1000;
+    if(h<1) return Math.round(d/60/1000)+'分钟前';
+    if(h<24) return Math.round(h)+'小时前';
+    return Math.round(h/24)+'天前';
+  }
+
+  function save(){ localStorage.setItem(KEY,JSON.stringify(posts)); }
+
+  function render(){
+    let list = posts.filter(p=>!p.reported);
+    if(activeTag!=='全部') list = list.filter(p=>p.mood===activeTag);
+    if(searchQuery.trim()){
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p=>p.text.toLowerCase().includes(q) || p.mood.includes(q));
+    }
+    // 置顶排序
+    list.sort((a,b)=>{
+      if(a.pinned && !b.pinned) return -1;
+      if(!a.pinned && b.pinned) return 1;
+      return b.time - a.time;
+    });
+
+    const wrap = document.getElementById('postList');
+    if(!list.length){
+      wrap.innerHTML = `<div class="empty"><div class="ph-empty"><img src="../assets/images/empty.png" alt="空状态插画" onload="this.parentElement.classList.add('has-real-img')" onerror="this.style.display='none'"><span class="img-fallback">🌱</span></div><p>这片树洞还没有相关心事呢</p></div>`;
+      return;
+    }
+    wrap.innerHTML = list.map(p=>`
+      <article class="post ${p.pinned?'pinned':''}" data-id="${p.id}">
+        <div class="post-head">
+          <div class="av">${p.avatar}</div>
+          <div style="flex:1">
+            <div class="name">${p.anon?'匿名':p.name} <span class="tag" style="margin-left:8px">${p.mood}</span></div>
+            <div class="time">${timeAgo(p.time)}</div>
+          </div>
+        </div>
+        <div class="post-content">${p.text}</div>
+        <div class="post-action">
+          <span class="lk ${p.liked?'liked':''}" data-id="${p.id}">${p.liked?'❤️':'🤍'} <b>${p.likes}</b></span>
+          <span class="cm" data-id="${p.id}">💬 评论 <b>${p.cms.length}</b></span>
+          <span class="sh">📤 分享</span>
+          <span class="report" data-id="${p.id}">🚩 举报</span>
+        </div>
+        <div class="comments" id="cm-${p.id}">
+          ${p.cms.map(c=>`<div class="cm-item"><b>${c.n}</b>${c.t}</div>`).join('')||'<div style="color:var(--muted);font-size:13px;padding:6px 0">还没有评论,做第一个吧</div>'}
+          <div class="cm-input">
+            <input placeholder="温柔地回复..." data-id="${p.id}" />
+            <button data-id="${p.id}">发送</button>
+          </div>
+        </div>
+      </article>`).join('');
+
+    wrap.querySelectorAll('.lk').forEach(el=>el.onclick=()=>{
+      const p = posts.find(x=>x.id===el.dataset.id);
+      p.liked=!p.liked; p.likes+=(p.liked?1:-1); save(); render();
+    });
+    wrap.querySelectorAll('.cm').forEach(el=>el.onclick=()=>{
+      const box = document.getElementById('cm-'+el.dataset.id);
+      box.classList.toggle('show');
+    });
+    wrap.querySelectorAll('.sh').forEach(el=>el.onclick=()=>toast('链接已复制','ok'));
+    wrap.querySelectorAll('.report').forEach(el=>el.onclick=()=>{
+      reportTargetId = el.dataset.id;
+      document.getElementById('reportModal').classList.add('show');
+    });
+    wrap.querySelectorAll('.cm-input button').forEach(b=>b.onclick=()=>{
+      const ipt = wrap.querySelector('.cm-input input[data-id="'+b.dataset.id+'"]');
+      const v = ipt.value.trim(); if(!v) return toast('内容不能为空','err');
+      const p = posts.find(x=>x.id===b.dataset.id);
+      p.cms.push({n: u? (document.getElementById('anonChk').checked?'匿名我':u.username) : '匿名访客', t:v});
+      save(); render();
+      document.getElementById('cm-'+b.dataset.id).classList.add('show');
+    });
+  }
+
+  /* 筛选 */
+  document.getElementById('filterBar').addEventListener('click',e=>{
+    if(e.target.tagName!=='SPAN') return;
+    document.querySelectorAll('#filterBar span').forEach(s=>s.classList.remove('on'));
+    e.target.classList.add('on');
+    activeTag = e.target.dataset.tag;
+    render();
+  });
+
+  /* 心情选择 */
+  document.getElementById('moodPick').addEventListener('click',e=>{
+    if(e.target.tagName!=='SPAN') return;
+    document.querySelectorAll('#moodPick span').forEach(s=>s.classList.remove('on'));
+    e.target.classList.add('on');
+    activeMood = e.target.dataset.mood;
+  });
+
+  /* 搜索 */
+  document.getElementById('searchBtn').addEventListener('click',()=>{
+    searchQuery = document.getElementById('searchInput').value;
+    render();
+  });
+  document.getElementById('searchInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){ searchQuery = e.target.value; render(); }
+  });
+  document.getElementById('clearSearchBtn').addEventListener('click',()=>{
+    document.getElementById('searchInput').value='';
+    searchQuery='';
+    render();
+  });
+
+  /* 举报弹窗 */
+  document.getElementById('cancelReport').addEventListener('click',()=>{
+    document.getElementById('reportModal').classList.remove('show');
+    reportTargetId = null;
+  });
+  document.getElementById('confirmReport').addEventListener('click',()=>{
+    if(!reportTargetId) return;
+    const p = posts.find(x=>x.id===reportTargetId);
+    if(p){ p.reported = true; save(); }
+    document.getElementById('reportModal').classList.remove('show');
+    toast('举报已提交，感谢你的维护','ok');
+    render();
+    reportTargetId = null;
+  });
+  document.getElementById('reportModal').addEventListener('click',e=>{
+    if(e.target===document.getElementById('reportModal')){
+      document.getElementById('reportModal').classList.remove('show');
+      reportTargetId = null;
+    }
+  });
+
+  /* 发帖 */
+  document.getElementById('postBtn').onclick=()=>{
+    const txt = document.getElementById('composeText').value.trim();
+    if(!txt) return toast('请说点什么吧 ~','err');
+    if(txt.length<5) return toast('再写多一点点 ❤','err');
+    if(!activeMood) return toast('选个心情吧','err');
+    const anon = document.getElementById('anonChk').checked;
+    const np = {
+      id:'p'+Date.now(),
+      anon: u? anon : true,
+      name: u? u.username : '匿名访客',
+      avatar: u? (u.avatar||'😊') : '🌟',
+      mood: activeMood,
+      text: txt, time:Date.now(), likes:0, liked:false, cms:[],
+      pinned:false, reported:false
+    };
+    posts.unshift(np); save(); render();
+    document.getElementById('composeText').value='';
+    document.querySelectorAll('#moodPick span').forEach(s=>s.classList.remove('on'));
+    activeMood=null;
+    toast('已发布,愿你被温柔接住 🌱','ok');
+    if(typeof logActivity==='function') logActivity('community_post',{mood:np.mood});
+  };
+
+  render();
+
+  // ===================== 新增：治愈短句切换交互 =====================
+  const quoteBox = document.getElementById('dailyQuote');
+  const quoteChangeBtn = document.getElementById('changeQuoteBtn');
+  const quoteLibrary = [
+    "风会带走所有的不安，你慢慢来，一切都来得及。",
+    "你不需要闪闪发光，平安自在就很好。",
+    "允许自己脆弱，允许自己休息，情绪没有对错。",
+    "生活总有低谷，熬过去，前路皆是温柔星光。",
+    "不必迎合所有人，你的感受永远最重要。",
+    "今天辛苦了，抱抱自己，你已经很棒啦。",
+    "花期不同，不必焦虑，你自有你的节奏。",
+    "所有糟糕的日子，都会慢慢翻篇。"
+  ];
+
+  quoteChangeBtn.addEventListener('click',()=>{
+    const randomQuote = quoteLibrary[Math.floor(Math.random() * quoteLibrary.length)];
+    quoteBox.innerText = randomQuote;
+    toast("已更换新的治愈文案✨","ok");
+  });
+</script>
+</body>
+</html>

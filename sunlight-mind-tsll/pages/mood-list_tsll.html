@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情绪日记 · 晴心</title>
+<link rel="stylesheet" href="../assets/css/site_tsll.css">
+<style>
+/* 全局统一变量 */
+:root{
+  --radius-sm:8px;
+  --radius-md:14px;
+  --radius-lg:16px;
+  --radius-pill:999px;
+  --transition-base:0.2s ease;
+  --shadow-sm:var(--shadow);
+}
+
+/* ===== 页面布局 ===== */
+.mood-grid{display:grid;grid-template-columns:1.2fr 2fr;gap:20px}
+.add-card{background:#fff;border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-sm);position:sticky;top:90px}
+
+/* ===== Emoji 选择 ===== */
+.mood-emoji-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:14px 0}
+.mood-emoji{aspect-ratio:1;border:2px solid var(--rule);border-radius:var(--radius-md);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:var(--transition-base)}
+.mood-emoji small{font-size:11px;color:var(--muted);margin-top:2px}
+.mood-emoji:hover{border-color:var(--accent);transform:translateY(-3px)}
+.mood-emoji.active{background:var(--bg2);border-color:var(--accent);box-shadow:0 6px 16px rgba(245,166,35,.25)}
+
+/* ===== 心情卡片 ===== */
+.mood-card{background:#fff;border-radius:var(--radius-md);padding:18px;margin-bottom:14px;box-shadow:var(--shadow-sm);cursor:pointer;transition:var(--transition-base);border-left:4px solid var(--accent)}
+.mood-card:hover{transform:translateX(4px)}
+.mood-card.s1{border-left-color:#E07A5F}
+.mood-card.s2{border-left-color:#FFB347}
+.mood-card.s3{border-left-color:#FFD580}
+.mood-card.s4{border-left-color:#7BC4A0}
+.mood-card.s5{border-left-color:#F5A623}
+.mood-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mood-emj-big{font-size:36px}
+.mood-time{font-size:12px;color:var(--muted)}
+.mood-text{color:var(--ink);line-height:1.7;margin-bottom:6px}
+.mood-tags span{display:inline-block;padding:2px 10px;border-radius:var(--radius-pill);background:var(--bg2);font-size:11px;color:var(--accent);margin-right:4px}
+.mood-actions{margin-top:10px;display:flex;gap:8px}
+.icon-btn{padding:4px 10px;font-size:12px;border-radius:var(--radius-sm);border:1px solid var(--rule);background:#fff;cursor:pointer;color:var(--muted);transition:var(--transition-base)}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* 关键词高亮 */
+.highlight{background:#FFF3B0;padding:0 2px}
+
+/* ===== 筛选栏 ===== */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{padding:8px 12px;border:2px solid var(--rule);border-radius:var(--radius-sm);font-size:13px}
+
+/* ===== 统计面板 ===== */
+.stat-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat-item{background:#fff;border-radius:var(--radius-sm);padding:14px 10px;text-align:center;box-shadow:var(--shadow-sm);transition:var(--transition-base)}
+.stat-item:hover{transform:translateY(-2px)}
+.stat-num{font-size:22px;font-weight:800;color:var(--accent)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ===== 月度统计卡片 新增 */
+.month-stat{background:#fff;border-radius:var(--radius-md);padding:16px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.month-stat h4{margin:0 0 10px 0;font-size:14px;color:var(--muted)}
+.month-row{display:flex;gap:20px}
+.month-item{text-align:center}
+.month-num{font-size:20px;font-weight:bold;color:var(--accent)}
+.month-desc{font-size:12px;color:var(--muted)}
+
+/* ===== 心情分布条 ===== */
+.distrib-bar{display:flex;height:10px;border-radius:var(--radius-pill);overflow:hidden;margin-bottom:18px;background:var(--rule)}
+.distrib-bar .db-seg{height:100%;transition:0.3s ease}
+.distrib-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--muted)}
+.distrib-legend span{display:flex;align-items:center;gap:4px}
+.distrib-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* ===== 排序与分页 ===== */
+.sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.sort-bar select{padding:6px 10px;border:2px solid var(--rule);border-radius:var(--radius-sm);font-size:13px;background:#fff}
+
+.pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:18px}
+.pagination button{padding:6px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--rule);background:#fff;cursor:pointer;font-size:13px;color:var(--muted);transition:var(--transition-base)}
+.pagination button:hover{border-color:var(--accent);color:var(--accent)}
+.pagination button:disabled{opacity:.4;cursor:not-allowed}
+.pagination .pg-info{font-size:13px;color:var(--muted)}
+
+/* ===== 导出/导入操作栏 ===== */
+.export-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.file-input{display:none}
+.import-label{cursor:pointer}
+
+/* ===== 多选批量删除 ===== */
+.batch-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;display:none}
+.batch-bar.show{display:flex}
+.checkbox-item{width:16px;height:16px;cursor:pointer}
+
+/* ===== 回到顶部按钮 新增 */
+.back-top{position:fixed;right:24px;bottom:24px;width:46px;height:46px;border-radius:50%;border:none;background:linear-gradient(135deg,#F5A623,#FF8C42);color:#fff;font-size:18px;box-shadow:0 4px 14px rgba(245,166,35,.3);cursor:pointer;opacity:0;visibility:hidden;transition:var(--transition-base);z-index:99}
+.back-top.show{opacity:1;visibility:visible}
+.back-top:hover{transform:translateY(-3px)}
+
+/* ===== 每月今日回忆卡片 新增 */
+.today-memory{background:#fff;border-radius:var(--radius-md);padding:14px;margin-bottom:16px;box-shadow:var(--shadow-sm);border-left:4px solid #7BC4A0}
+.today-memory h4{margin:0 0 8px 0;font-size:14px}
+.today-memory p{margin:0;color:var(--muted);font-size:13px}
+
+/* ===== 敏感词提示弹窗 新增 ===== */
+.sensitive-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;z-index:200;
+}
+.sensitive-modal.show{display:flex}
+.sensitive-box{
+  width:90%;max-width:400px;background:#fff;border-radius:16px;padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+}
+.sensitive-box h4{margin-top:0;color:#E07A5F}
+.sensitive-tip{color:var(--muted);font-size:13px;line-height:1.7;margin:10px 0 18px}
+.sensitive-word-list{
+  background:var(--bg2);padding:10px;border-radius:10px;margin-bottom:20px;font-size:13px
+}
+.sensitive-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* ===== 空状态 ===== */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:60px;opacity:.4;margin-bottom:10px}
+
+@media (max-width:900px){
+  .mood-grid{grid-template-columns:1fr}
+  .add-card{position:static}
+  .stat-bar{grid-template-columns:repeat(2,1fr)}
+  .month-row{justify-content:center}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="page-hero">
+    <h1>📔 情绪日记</h1>
+    <p>把今天的心情温柔地放好，明天的你会感谢现在的记录。</p>
+  </div>
+
+  <div class="mood-grid">
+    <!-- 左：写日记 -->
+    <div>
+      <div class="add-card">
+        <h3 style="font-size:18px;margin-bottom:8px">✍️ 此刻心情</h3>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:6px">现在感觉如何？</p>
+        <div class="mood-emoji-row" id="emojiRow">
+          <div class="mood-emoji" data-score="1" data-emj="😢"><span>😢</span><small>很差</small></div>
+          <div class="mood-emoji" data-score="2" data-emj="😞"><span>😞</span><small>不好</small></div>
+          <div class="mood-emoji" data-score="3" data-emj="😐"><span>😐</span><small>一般</small></div>
+          <div class="mood-emoji" data-score="4" data-emj="🙂"><span>🙂</span><small>不错</small></div>
+          <div class="mood-emoji" data-score="5" data-emj="😄"><span>😄</span><small>很好</small></div>
+        </div>
+
+        <p style="color:var(--muted);font-size:13px;margin-bottom:6px;margin-top:10px">想说点什么？（无字数限制）</p>
+        <textarea class="textarea" id="moodText" placeholder="今天发生了什么呢？写下来会轻松一些..." rows="4"></textarea>
+
+        <p style="color:var(--muted);font-size:13px;margin-top:14px;margin-bottom:6px">添加标签（可多选）</p>
+        <div id="tagBox">
+          <span class="tag" data-tag="学习">#学习</span>
+          <span class="tag" data-tag="人际">#人际</span>
+          <span class="tag" data-tag="家庭">#家庭</span>
+          <span class="tag" data-tag="爱情">#爱情</span>
+          <span class="tag" data-tag="健康">#健康</span>
+          <span class="tag" data-tag="未来">#未来</span>
+        </div>
+
+        <button class="btn btn-primary" id="saveBtn" style="width:100%;margin-top:18px;justify-content:center">💾 保存今日心情</button>
+      </div>
+    </div>
+
+    <!-- 右：列表区域 -->
+    <div>
+      <!-- 月度统计 新增 -->
+      <div class="month-stat" id="monthStatWrap" style="display:none">
+        <h4>📅 本月心情统计</h4>
+        <div class="month-row">
+          <div class="month-item">
+            <div class="month-num" id="monthTotal">0</div>
+            <div class="month-desc">本月记录</div>
+          </div>
+          <div class="month-item">
+            <div class="month-num" id="monthAvg">-</div>
+            <div class="month-desc">本月平均分</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 每月今日回忆 新增 -->
+      <div class="today-memory" id="todayMemoryWrap" style="display:none">
+        <h4>🕰 往年今日回忆</h4>
+        <p id="todayMemoryText"></p>
+      </div>
+
+      <!-- 总统计面板 -->
+      <div class="stat-bar" id="statBar">
+        <div class="stat-item"><div class="stat-num" id="stTotal">0</div><div class="stat-label">总记录</div></div>
+        <div class="stat-item"><div class="stat-num" id="stAvg">-</div><div class="stat-label">平均心情</div></div>
+        <div class="stat-item"><div class="stat-num" id="stBest">-</div><div class="stat-label">最佳心情</div></div>
+        <div class="stat-item"><div class="stat-num" id="stStreak">0</div><div class="stat-label">连续记录(天)</div></div>
+      </div>
+
+      <!-- 心情分布 -->
+      <div class="distrib-bar" id="distribBar"></div>
+      <div class="distrib-legend" id="distribLegend"></div>
+
+      <!-- 筛选、导入导出 -->
+      <div class="filter-bar">
+        <select id="filterScore">
+          <option value="">全部心情</option>
+          <option value="5">😄 很好</option><option value="4">🙂 不错</option><option value="3">😐 一般</option>
+          <option value="2">😞 不好</option><option value="1">😢 很差</option>
+        </select>
+        <input id="filterText" placeholder="🔍 搜索内容..." style="flex:1;min-width:160px">
+        <button class="btn btn-ghost" id="clearAllBtn">清空全部</button>
+      </div>
+
+      <div class="export-bar">
+        <button class="btn btn-ghost" id="exportBtn" style="padding:6px 14px;font-size:12px">📥 导出JSON备份</button>
+        <button class="btn btn-ghost" id="exportTxtBtn" style="padding:6px 14px;font-size:12px">📝 导出纯文本</button>
+        <!-- 导入文件 新增 -->
+        <input type="file" accept=".json" class="file-input" id="importFile">
+        <label class="btn btn-ghost import-label" for="importFile" style="padding:6px 14px;font-size:12px">📂 导入备份</label>
+      </div>
+
+      <!-- 批量操作栏 新增 -->
+      <div class="batch-bar" id="batchBar">
+        <label><input type="checkbox" id="checkAll" class="checkbox-item">全选</label>
+        <button class="btn btn-ghost" id="batchDelBtn">🗑 批量删除选中</button>
+      </div>
+
+      <!-- 排序栏 -->
+      <div class="sort-bar">
+        <span style="font-size:13px;color:var(--muted)">共 <b id="listCount">0</b> 条</span>
+        <select id="sortSel">
+          <option value="newest">最新优先</option>
+          <option value="oldest">最早优先</option>
+          <option value="scoreDesc">心情由高到低</option>
+          <option value="scoreAsc">心情由低到高</option>
+        </select>
+      </div>
+
+      <div id="moodList"></div>
+
+      <!-- 分页 -->
+      <div class="pagination" id="pagination" style="display:none">
+        <button id="pgPrev">上一页</button>
+        <span class="pg-info" id="pgInfo">-</span>
+        <button id="pgNext">下一页</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 回到顶部悬浮按钮 -->
+<button class="back-top" id="backTopBtn">↑</button>
+
+<!-- 敏感词温柔提示弹窗 新增 -->
+<div class="sensitive-modal" id="sensitiveModal">
+  <div class="sensitive-box">
+    <h4>💛 温馨提示</h4>
+    <p class="sensitive-tip">检测到内容包含容易引发负面冲突的词汇，平台希望大家温柔倾诉、友好表达。您可以选择修改内容，也可以直接保存这条日记。</p>
+    <div class="sensitive-word-list">
+      命中词汇：<span id="hitWordText"></span>
+    </div>
+    <div class="sensitive-actions">
+      <button class="btn btn-ghost" id="cancelSensitive">返回修改</button>
+      <button class="btn btn-primary" id="forceSave">仍要保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/site_tsll.js"></script>
+<script>
+injectTopbar('mood');
+injectContactBar();
+const user = requireLogin();
+if(!user) location.href = 'login_tsll.html';
+
+// ===================== 全局常量统一管理 =====================
+const PAGE_SIZE = 8;
+const SCORE_COLOR = ['','#E07A5F','#FFB347','#FFD580','#7BC4A0','#F5A623'];
+const SCORE_EMOJI = ['','😢','😞','😐','🙂','😄'];
+const SCORE_TEXT_SHORT = ['','很差','不好','一般','不错','很好'];
+const ALL_TAGS = ['学习','人际','家庭','爱情','健康','未来'];
+const STORAGE_KEY_MOODS = `sm_moods_${user.id}`;
+const STORAGE_KEY_DRAFT = `sm_mood_draft_${user.id}`;
+const DEBOUNCE_DELAY = 400;
+
+// 敏感词库（可自行扩充）
+const SENSITIVE_WORDS = [
+  "自杀", "自残", "跳楼", "去死", "杀死", "报复", "辱骂",
+  "恶毒", "仇恨", "暴力", "自残", "割腕", "绝望到放弃一切",
+  "校园霸凌", "殴打", "极端报复", "人身攻击"
+];
+
+// ===================== DOM全局缓存（仅查询一次） =====================
+const dom = {
+  emojiRow: document.getElementById('emojiRow'),
+  moodText: document.getElementById('moodText'),
+  tagBox: document.getElementById('tagBox'),
+  saveBtn: document.getElementById('saveBtn'),
+  clearAllBtn: document.getElementById('clearAllBtn'),
+  filterScore: document.getElementById('filterScore'),
+  filterText: document.getElementById('filterText'),
+  sortSel: document.getElementById('sortSel'),
+  exportBtn: document.getElementById('exportBtn'),
+  exportTxtBtn: document.getElementById('exportTxtBtn'),
+  importFile: document.getElementById('importFile'),
+  moodList: document.getElementById('moodList'),
+  listCount: document.getElementById('listCount'),
+  pagination: document.getElementById('pagination'),
+  pgPrev: document.getElementById('pgPrev'),
+  pgNext: document.getElementById('pgNext'),
+  pgInfo: document.getElementById('pgInfo'),
+  statBar: document.getElementById('statBar'),
+  stTotal: document.getElementById('stTotal'),
+  stAvg: document.getElementById('stAvg'),
+  stBest: document.getElementById('stBest'),
+  stStreak: document.getElementById('stStreak'),
+  distribBar: document.getElementById('distribBar'),
+  distribLegend: document.getElementById('distribLegend'),
+  backTopBtn: document.getElementById('backTopBtn'),
+  monthStatWrap: document.getElementById('monthStatWrap'),
+  monthTotal: document.getElementById('monthTotal'),
+  monthAvg: document.getElementById('monthAvg'),
+  todayMemoryWrap: document.getElementById('todayMemoryWrap'),
+  todayMemoryText: document.getElementById('todayMemoryText'),
+  batchBar: document.getElementById('batchBar'),
+  checkAll: document.getElementById('checkAll'),
+  batchDelBtn: document.getElementById('batchDelBtn'),
+  // 敏感弹窗DOM
+  sensitiveModal: document.getElementById('sensitiveModal'),
+  hitWordText: document.getElementById('hitWordText'),
+  cancelSensitive: document.getElementById('cancelSensitive'),
+  forceSave: document.getElementById('forceSave')
+};
+
+// ===================== 工具函数封装 =====================
+// 防抖函数
+function debounce(fn, delay = DEBOUNCE_DELAY) {
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  }
+}
+// 存储读写封装
+function getMoodList() {
+  const str = localStorage.getItem(STORAGE_KEY_MOODS);
+  return str ? JSON.parse(str) : [];
+}
+function saveMoodList(list) {
+  localStorage.setItem(STORAGE_KEY_MOODS, JSON.stringify(list));
+}
+// 草稿读写（新建日记草稿）
+function getDraft() {
+  const str = localStorage.getItem(STORAGE_KEY_DRAFT);
+  return str ? JSON.parse(str) : { text: '', tags: [], score: null, emj: '' };
+}
+function saveDraft(data) {
+  localStorage.setItem(STORAGE_KEY_DRAFT, JSON.stringify(data));
+}
+function clearDraft() {
+  localStorage.removeItem(STORAGE_KEY_DRAFT);
+}
+// 获取当月日期字符串
+function getCurrentMonth() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+// 关键词高亮替换
+function highlightText(text, keyword) {
+  if(!keyword || !text) return text;
+  const reg = new RegExp(`(${keyword})`, 'gi');
+  return text.replace(reg, '<span class="highlight">$1</span>');
+}
+// 敏感词检测，返回命中词汇数组
+function checkSensitive(text){
+  const hit = [];
+  SENSITIVE_WORDS.forEach(word=>{
+    if(text.includes(word)) hit.push(word);
+  })
+  return [...new Set(hit)];
+}
+
+// ===================== 全局业务变量 =====================
+let curPage = 1;
+let selScore = null, selEmj = null;
+let selTags = [];
+let selectedIds = new Set(); // 批量勾选ID集合
+let pendingSaveText = ""; // 缓存待保存文本（敏感弹窗确认保存使用）
+
+// 初始化恢复草稿
+const initDraft = getDraft();
+dom.moodText.value = initDraft.text;
+selScore = initDraft.score;
+selEmj = initDraft.emj;
+selTags = initDraft.tags;
+// 恢复选中emoji
+document.querySelectorAll('.mood-emoji').forEach(el => {
+  if(+el.dataset.score === selScore) el.classList.add('active');
+});
+// 恢复选中标签
+document.querySelectorAll('#tagBox .tag').forEach(tagEl => {
+  const t = tagEl.dataset.tag;
+  if(selTags.includes(t)) {
+    tagEl.style.background = 'var(--accent)';
+    tagEl.style.color = '#fff';
+  }
+});
+
+// ===================== 敏感弹窗交互 =====================
+dom.cancelSensitive.addEventListener('click',()=>{
+  dom.sensitiveModal.classList.remove('show');
+  pendingSaveText = "";
+})
+dom.forceSave.addEventListener('click',()=>{
+  dom.sensitiveModal.classList.remove('show');
+  executeSaveMood(pendingSaveText);
+  pendingSaveText = "";
+})
+// 点击弹窗背景关闭
+dom.sensitiveModal.addEventListener('click',e=>{
+  if(e.target === dom.sensitiveModal){
+    dom.sensitiveModal.classList.remove('show');
+    pendingSaveText = "";
+  }
+})
+
+// ===================== 新建日记区域交互 =====================
+// Emoji选择
+dom.emojiRow.querySelectorAll('.mood-emoji').forEach(el => {
+  el.addEventListener('click', () => {
+    dom.emojiRow.querySelectorAll('.mood-emoji').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    selScore = +el.dataset.score;
+    selEmj = el.dataset.emj;
+    saveDraft({ text: dom.moodText.value, tags: selTags, score: selScore, emj: selEmj });
+  });
+});
+// 文本输入实时存草稿
+dom.moodText.addEventListener('input', debounce(() => {
+  saveDraft({ text: dom.moodText.value, tags: selTags, score: selScore, emj: selEmj });
+}));
+// 标签点击
+dom.tagBox.querySelectorAll('.tag').forEach(tEl => {
+  tEl.addEventListener('click', () => {
+    const tag = tEl.dataset.tag;
+    if(selTags.includes(tag)) {
+      selTags = selTags.filter(x => x !== tag);
+      tEl.style.background = 'var(--bg2)';
+      tEl.style.color = 'var(--accent)';
+    } else {
+      selTags.push(tag);
+      tEl.style.background = 'var(--accent)';
+      tEl.style.color = '#fff';
+    }
+    saveDraft({ text: dom.moodText.value, tags: selTags, score: selScore, emj: selEmj });
+  });
+});
+
+// 实际保存日记逻辑（分离，弹窗确认后调用）
+function executeSaveMood(text){
+  const list = getMoodList();
+  const newMood = {
+    id: Date.now(),
+    score: selScore,
+    emj: selEmj,
+    text,
+    tags: [...selTags],
+    time: Date.now()
+  };
+  list.unshift(newMood);
+  saveMoodList(list);
+  logActivity('记录情绪', { score: selScore, emj: selEmj });
+  toast('💛 今日心情保存成功', 'ok');
+  // 清空输入与草稿
+  dom.moodText.value = '';
+  selScore = null;
+  selEmj = null;
+  selTags = [];
+  dom.emojiRow.querySelectorAll('.mood-emoji').forEach(x => x.classList.remove('active'));
+  dom.tagBox.querySelectorAll('.tag').forEach(x => {
+    x.style.background = 'var(--bg2)';
+    x.style.color = 'var(--accent)';
+  });
+  clearDraft();
+  curPage = 1;
+  render();
+}
+
+// 保存按钮点击入口
+dom.saveBtn.addEventListener('click', () => {
+  if(selScore === null) return toast('请选择一个心情分值', 'err');
+  const text = dom.moodText.value.trim();
+  // 移除字数限制，空文本也允许保存
+  const hitWords = checkSensitive(text);
+  if(hitWords.length > 0){
+    // 存在敏感词汇，弹出温柔提示，不拦截
+    pendingSaveText = text;
+    dom.hitWordText.textContent = hitWords.join("、");
+    dom.sensitiveModal.classList.add('show');
+    return;
+  }
+  // 无敏感词直接保存
+  executeSaveMood(text);
+});
+
+// ===================== 筛选、排序、清空、导入导出 =====================
+dom.clearAllBtn.addEventListener('click', () => {
+  if(!confirm('确定永久清空所有情绪日记？数据无法恢复！')) return;
+  localStorage.removeItem(STORAGE_KEY_MOODS);
+  curPage = 1;
+  selectedIds.clear();
+  render();
+});
+// 筛选变化重置页码
+dom.filterScore.addEventListener('change', debounce(() => { curPage = 1; render(); }));
+dom.filterText.addEventListener('input', debounce(() => { curPage = 1; render(); }));
+dom.sortSel.addEventListener('change', debounce(() => { curPage = 1; render(); }));
+// 分页按钮
+dom.pgPrev.addEventListener('click', () => {
+  if(curPage > 1) { curPage--; render(); }
+});
+dom.pgNext.addEventListener('click', () => {
+  const filtered = getFilteredData();
+  const maxPage = Math.ceil(filtered.length / PAGE_SIZE);
+  if(curPage < maxPage) { curPage++; render(); }
+});
+// 导出JSON备份
+dom.exportBtn.addEventListener('click', () => {
+  const list = getMoodList();
+  if(!list.length) return toast('暂无日记数据可导出', 'err');
+  const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `晴心情绪日记备份_${fmtDate(Date.now())}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('JSON备份导出完成', 'ok');
+});
+// 导出纯文本
+dom.exportTxtBtn.addEventListener('click', () => {
+  const list = getMoodList();
+  if(!list.length) return toast('暂无日记数据可导出', 'err');
+  let txtContent = '📔 晴心情绪日记完整导出记录\n=============================================\n\n';
+  list.forEach(m => {
+    txtContent += `【${fmtTime(m.time)}】${m.emj} ${SCORE_TEXT_SHORT[m.score]}\n`;
+    txtContent += m.text ? m.text + '\n' : '无文字记录\n';
+    txtContent += m.tags?.length ? `标签：${m.tags.join('、')}\n` : '无标签\n';
+    txtContent += '--------------------------------------------\n\n';
+  });
+  const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `晴心情绪日记文本_${fmtDate(Date.now())}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('文本日记导出完成', 'ok');
+});
+// 导入JSON备份 新增
+dom.importFile.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  try {
+    const text = await file.text();
+    const importData = JSON.parse(text);
+    if(!Array.isArray(importData)) throw new Error('文件格式错误');
+    const oldList = getMoodList();
+    // 合并去重（按id）
+    const idSet = new Set(oldList.map(item => item.id));
+    const newItems = importData.filter(item => !idSet.has(item.id));
+    const mergeList = [...newItems, ...oldList];
+    saveMoodList(mergeList);
+    dom.importFile.value = '';
+    curPage = 1;
+    render();
+    toast(`成功导入${newItems.length}条日记`, 'ok');
+  } catch(err) {
+    toast('导入失败，请选择正确的备份JSON文件', 'err');
+    dom.importFile.value = '';
+  }
+});
+
+// ===================== 批量删除功能 新增 =====================
+// 全选切换
+dom.checkAll.addEventListener('change', () => {
+  const filtered = getFilteredData();
+  const pageItems = filtered.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  if(dom.checkAll.checked) {
+    pageItems.forEach(item => selectedIds.add(item.id));
+  } else {
+    pageItems.forEach(item => selectedIds.delete(item.id));
+  }
+  render();
+});
+// 批量删除
+dom.batchDelBtn.addEventListener('click', () => {
+  if(selectedIds.size === 0) return toast('请先勾选要删除的日记', 'err');
+  if(!confirm(`确定删除选中${selectedIds.size}条记录？无法恢复`)) return;
+  let list = getMoodList();
+  list = list.filter(item => !selectedIds.has(item.id));
+  saveMoodList(list);
+  selectedIds.clear();
+  curPage = 1;
+  render();
+  toast('批量删除完成', 'ok');
+});
+
+// ===================== 过滤数据函数 =====================
+function getFilteredData() {
+  const list = getMoodList();
+  const filterScoreVal = dom.filterScore.value;
+  const filterKeyword = dom.filterText.value.toLowerCase().trim();
+  let filtered = list.filter(m => {
+    // 心情分值筛选
+    if(filterScoreVal && Number(filterScoreVal) !== m.score) return false;
+    // 关键词搜索（文字+标签）
+    if(filterKeyword) {
+      const matchText = (m.text || '').toLowerCase().includes(filterKeyword);
+      const matchTag = (m.tags || []).some(t => t.toLowerCase().includes(filterKeyword));
+      if(!matchText && !matchTag) return false;
+    }
+    return true;
+  });
+  // 排序逻辑
+  const sortType = dom.sortSel.value;
+  if(sortType === 'oldest') filtered.sort((a, b) => a.time - b.time);
+  else if(sortType === 'scoreDesc') filtered.sort((a, b) => b.score - a.score);
+  else if(sortType === 'scoreAsc') filtered.sort((a, b) => a.score - a.score);
+  else filtered.sort((a, b) => b.time - a.time); // 最新优先
+  return filtered;
+}
+
+// ===================== 统计计算：总统计、月度统计、往年今日 =====================
+function updateAllStats(fullList) {
+  const total = fullList.length;
+  dom.stTotal.textContent = total;
+  // 无数据清空统计
+  if(total === 0) {
+    dom.stAvg.textContent = '-';
+    dom.stBest.textContent = '-';
+    dom.stStreak.textContent = '0';
+    dom.monthStatWrap.style.display = 'none';
+    dom.todayMemoryWrap.style.display = 'none';
+    return;
+  }
+  // 全局平均分
+  const totalScore = fullList.reduce((sum, m) => sum + m.score, 0);
+  const avgScore = (totalScore / total).toFixed(1);
+  dom.stAvg.textContent = avgScore;
+  // 最佳心情
+  const maxScore = Math.max(...fullList.map(m => m.score));
+  dom.stBest.textContent = SCORE_EMOJI[maxScore];
+  // 连续记录天数
+  const dateSet = new Set(fullList.map(m => fmtDate(m.time)));
+  const dateArr = Array.from(dateSet).sort();
+  let streak = 0;
+  let tempStreak = 0;
+  for(let i = dateArr.length - 1; i >= 0; i--) {
+    const curr = new Date(dateArr[i]).getTime();
+    const prev = i > 0 ? new Date(dateArr[i - 1]).getTime() : 0;
+    if(i === dateArr.length - 1 || curr - prev === 86400000) {
+      tempStreak++;
+      streak = Math.max(streak, tempStreak);
+    } else break;
+  }
+  dom.stStreak.textContent = streak;
+
+  // ========== 月度统计 新增 ==========
+  const currentMonth = getCurrentMonth();
+  const monthList = fullList.filter(m => fmtDate(m.time).startsWith(currentMonth));
+  if(monthList.length > 0) {
+    dom.monthStatWrap.style.display = 'block';
+    dom.monthTotal.textContent = monthList.length;
+    const monthTotalScore = monthList.reduce((s, m) => s + m.score, 0);
+    dom.monthAvg.textContent = (monthTotalScore / monthList.length).toFixed(1);
+  } else {
+    dom.monthStatWrap.style.display = 'none';
+  }
+
+  // ========== 往年今日回忆 新增 ==========
+  const now = new Date();
+  const monthDay = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const memoryList = fullList.filter(m => {
+    const d = new Date(m.time);
+    const md = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return md === monthDay && new Date(m.time).getFullYear() !== now.getFullYear();
+  });
+  if(memoryList.length > 0) {
+    dom.todayMemoryWrap.style.display = 'block';
+    const firstMem = memoryList[0];
+    dom.todayMemoryText.textContent = `${fmtTime(firstMem.time)} ${firstMem.emj} ${firstMem.text || '无文字记录'}`;
+  } else {
+    dom.todayMemoryWrap.style.display = 'none';
+  }
+
+  // ========== 心情分布条 ==========
+  const countArr = [0, 0, 0, 0, 0, 0];
+  fullList.forEach(m => countArr[m.score]++);
+  dom.distribBar.innerHTML = '';
+  const fragBar = document.createDocumentFragment();
+  countArr.forEach((count, idx) => {
+    if(idx === 0 || count === 0) return;
+    const percent = (count / total * 100).toFixed(1);
+    const seg = document.createElement('div');
+    seg.className = 'db-seg';
+    seg.style.width = `${percent}%`;
+    seg.style.background = SCORE_COLOR[idx];
+    seg.title = `${SCORE_TEXT_SHORT[idx]} ${count}条 (${percent}%)`;
+    fragBar.appendChild(seg);
+  });
+  dom.distribBar.appendChild(fragBar);
+  // 图例
+  dom.distribLegend.innerHTML = '';
+  const fragLegend = document.createDocumentFragment();
+  countArr.forEach((count, idx) => {
+    if(idx === 0 || count === 0) return;
+    const span = document.createElement('span');
+    span.innerHTML = `<i style="background:${SCORE_COLOR[idx]}"></i>${SCORE_TEXT_SHORT[idx]} ${count}`;
+    fragLegend.appendChild(span);
+  });
+  dom.distribLegend.appendChild(fragLegend);
+}
+
+// ===================== 主渲染函数 =====================
+function render() {
+  const fullList = getMoodList();
+  const filtered = getFilteredData();
+  dom.listCount.textContent = filtered.length;
+  // 更新顶部统计面板
+  updateAllStats(fullList);
+  // 批量操作栏显示控制
+  dom.batchBar.style.display = filtered.length > 0 ? 'flex' : 'none';
+  dom.checkAll.checked = false;
+  selectedIds.clear();
+
+  // 清空列表容器
+  dom.moodList.innerHTML = '';
+  // 空状态
+  if(filtered.length === 0) {
+    dom.moodList.innerHTML = `<div class="empty"><div class="empty-icon">🌱</div><p>暂无匹配的情绪日记，记录第一条心情吧</p></div>`;
+    dom.pagination.style.display = 'none';
+    return;
+  }
+  // 分页切片
+  const pageStart = (curPage - 1) * PAGE_SIZE;
+  const pageData = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+  const fragList = document.createDocumentFragment();
+  const keyword = dom.filterText.value.trim().toLowerCase();
+
+  pageData.forEach(mood => {
+    const card = document.createElement('div');
+    card.className = `mood-card s${mood.score}`;
+    card.dataset.id = mood.id;
+    const tagHtml = (mood.tags || []).map(t => `<span>#${t}</span>`).join('');
+    const textHtml = highlightText(mood.text || '<span style="color:var(--muted)">未填写文字</span>', keyword).replace(/\n/g, '<br>');
+    const isChecked = selectedIds.has(mood.id);
+    card.innerHTML = `
+      <div class="mood-row1">
+        <span class="mood-emj-big">${mood.emj}</span>
+        <span class="mood-time">${fmtTime(mood.time)}</span>
+      </div>
+      <div class="mood-text">${textHtml}</div>
+      <div class="mood-tags">${tagHtml}</div>
+      <div class="mood-actions">
+        <label style="display:flex;align-items:center;gap:4px">
+          <input type="checkbox" class="checkbox-item mood-check" data-id="${mood.id}" ${isChecked ? 'checked' : ''}>勾选
+        </label>
+        <button class="icon-btn del-btn" data-id="${mood.id}">🗑 删除</button>
+        <button class="icon-btn detail-btn" data-id="${mood.id}">📖 查看详情</button>
+      </div>
+    `;
+    fragList.appendChild(card);
+  });
+  dom.moodList.appendChild(fragList);
+
+  // 事件委托：卡片内勾选、删除、详情跳转
+  dom.moodList.addEventListener('click', (e) => {
+    const target = e.target;
+    const moodId = Number(target.dataset.id);
+    // 单选勾选框
+    if(target.classList.contains('mood-check')) {
+      if(target.checked) selectedIds.add(moodId);
+      else selectedIds.delete(moodId);
+      return;
+    }
+    // 删除单条
+    if(target.classList.contains('del-btn')) {
+      e.stopPropagation();
+      if(!confirm('确定删除这条情绪日记？')) return;
+      let list = getMoodList();
+      list = list.filter(item => item.id !== moodId);
+      saveMoodList(list);
+      selectedIds.delete(moodId);
+      const maxPage = Math.ceil(getFilteredData().length / PAGE_SIZE);
+      if(curPage > maxPage && maxPage > 0) curPage = maxPage;
+      toast('单条日记已删除', 'ok');
+      render();
+      return;
+    }
+    // 跳转详情
+    if(target.classList.contains('detail-btn')) {
+      e.stopPropagation();
+      location.href = `mood-detail_tsll.html?id=${moodId}`;
+      return;
+    }
+  });
+
+  // 分页控制
+  const totalPage = Math.ceil(filtered.length / PAGE_SIZE);
+  if(totalPage > 1) {
+    dom.pagination.style.display = 'flex';
+    dom.pgInfo.textContent = `${curPage} / ${totalPage}`;
+    dom.pgPrev.disabled = curPage <= 1;
+    dom.pgNext.disabled = curPage >= totalPage;
+  } else {
+    dom.pagination.style.display = 'none';
+  }
+}
+
+// ===================== 回到顶部滚动监听 =====================
+window.addEventListener('scroll', debounce(() => {
+  if(window.scrollY > 300) dom.backTopBtn.classList.add('show');
+  else dom.backTopBtn.classList.remove('show');
+}, 100));
+dom.backTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// 页面首次渲染
+render();
+</script>
+</body>
+</html>

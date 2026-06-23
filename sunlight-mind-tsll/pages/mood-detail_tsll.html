@@ -1,0 +1,632 @@
+<!-- 优化重构+新增功能完整版 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日记详情 · 晴心</title>
+<link rel="stylesheet" href="../assets/css/site_tsll.css">
+<style>
+/* 全局公共变量统一管理 */
+:root{
+  --radius-sm:10px;
+  --radius-md:14px;
+  --radius-lg:24px;
+  --radius-pill:999px;
+  --transition-normal:0.25s ease;
+  --transition-slow:0.3s ease;
+}
+
+/* ===== 详情页英雄区 ===== */
+.detail-hero{
+  background:
+    linear-gradient(rgba(255,228,181,.72),rgba(255,183,178,.72)),
+    url('../assets/images/mood-detail-bg.jpg') center/cover no-repeat,
+    linear-gradient(135deg,#FFE4B5,#FFB7B2);
+  border-radius:var(--radius-lg);
+  padding:50px 40px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:24px;
+}
+.big-emoji{font-size:120px;line-height:1;margin-bottom:14px}
+.det-time{font-size:14px;color:var(--ink);opacity:.8}
+.det-title{font-size:24px;font-weight:800;margin-top:8px}
+
+/* ===== 收藏按钮 ===== */
+.fav-btn{
+  position:absolute;
+  top:20px;
+  right:20px;
+  background:rgba(255,255,255,.7);
+  border:none;
+  border-radius:50%;
+  width:44px;
+  height:44px;
+  font-size:22px;
+  cursor:pointer;
+  transition:var(--transition-normal);
+  z-index:3;
+}
+.fav-btn:hover{background:#fff;transform:scale(1.1)}
+.fav-btn.faved{color:#E07A5F}
+
+/* ===== 详情主体布局 ===== */
+.det-body{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.det-text{
+  white-space:pre-wrap;
+  font-size:16px;
+  line-height:2;
+  color:var(--ink);
+  background:var(--bg2);
+  border-radius:var(--radius-md);
+  padding:24px;
+  min-height:200px
+}
+.suggest-list{list-style:none;padding:0;margin:0}
+.suggest-list li{
+  padding:12px;
+  border-radius:var(--radius-sm);
+  background:var(--bg2);
+  margin-bottom:8px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  transition:var(--transition-normal);
+}
+.suggest-list li:hover{background:var(--rule)}
+
+/* ===== 编辑模式 ===== */
+.edit-textarea{
+  width:100%;
+  min-height:200px;
+  padding:16px;
+  border:2px solid var(--rule);
+  border-radius:var(--radius-md);
+  font-size:15px;
+  line-height:1.8;
+  font-family:inherit;
+  resize:vertical;
+  outline:none;
+  transition:var(--transition-normal);
+}
+.edit-textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(245,166,35,.12)
+}
+.edit-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.edit-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 10px;
+  border-radius:var(--radius-pill);
+  background:var(--bg2);
+  font-size:12px;
+  color:var(--accent);
+  cursor:pointer;
+  transition:var(--transition-normal);
+}
+.edit-tag.on{background:var(--accent);color:#fff}
+
+/* ===== 心情趋势 ===== */
+.trend-wrap{
+  background:#fff;
+  border-radius:var(--radius-md);
+  padding:18px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px
+}
+.trend-wrap h4{font-size:14px;margin-bottom:10px;color:var(--muted)}
+.trend-bar{
+  display:flex;
+  align-items:flex-end;
+  gap:4px;
+  height:80px;
+  padding-bottom:4px;
+  border-bottom:1.5px solid var(--rule)
+}
+.trend-bar .tb-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.trend-bar .tb-bar{
+  width:100%;
+  border-radius:4px 4px 0 0;
+  transition:var(--transition-slow);
+  min-height:4px
+}
+.trend-bar .tb-date{font-size:9px;color:var(--muted);white-space:nowrap}
+.trend-legend{display:flex;gap:10px;margin-top:8px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.trend-legend span{display:flex;align-items:center;gap:3px}
+.trend-legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+
+/* ===== 操作栏 ===== */
+.action-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+
+/* ===== 前后导航 ===== */
+.neighbor-nav{display:flex;justify-content:space-between;margin-top:16px}
+.neighbor-nav a{
+  padding:10px 16px;
+  background:#fff;
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow);
+  font-size:13px;
+  color:var(--ink);
+  text-decoration:none;
+  transition:var(--transition-normal);
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+.neighbor-nav a:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(245,166,35,.15)}
+.neighbor-nav a.disabled{opacity:.4;pointer-events:none}
+
+/* ===== 新增：备注模块样式 ===== */
+.note-card{
+  background:#fff;
+  border-radius:var(--radius-md);
+  padding:18px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+}
+.note-card h4{font-size:14px;margin-bottom:10px;color:var(--muted)}
+.note-input{
+  width:100%;
+  padding:10px 12px;
+  border:1.5px solid var(--rule);
+  border-radius:var(--radius-sm);
+  font-size:13px;
+  outline:none;
+  resize:none;
+  min-height:60px;
+  transition:var(--transition-normal);
+}
+.note-input:focus{border-color:var(--accent)}
+
+/* ===== 新增：回到顶部按钮 ===== */
+.back-top{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:none;
+  background:linear-gradient(135deg,#F5A623,#FF8C42);
+  color:#fff;
+  font-size:18px;
+  box-shadow:0 4px 14px rgba(245,166,35,.3);
+  cursor:pointer;
+  opacity:0;
+  visibility:hidden;
+  transition:var(--transition-normal);
+  z-index:99;
+}
+.back-top.show{opacity:1;visibility:visible}
+.back-top:hover{transform:translateY(-3px)}
+
+@media (max-width:900px){
+  .det-body{grid-template-columns:1fr}
+  .detail-hero{padding:30px 20px}
+  .big-emoji{font-size:90px}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <a class="btn btn-ghost" href="mood-list_tsll.html" style="margin-bottom:14px">← 返回列表</a>
+
+  <div class="detail-hero" id="detailHero">
+    <button class="fav-btn" id="favBtn" title="收藏">🤍</button>
+    <div class="big-emoji" id="dEmj">😊</div>
+    <div class="det-title" id="dTitle">心情记录</div>
+    <div class="det-time" id="dTime">-</div>
+    <div style="margin-top:14px" id="dTags"></div>
+  </div>
+
+  <div class="action-bar" id="actionBar">
+    <button class="btn btn-ghost" id="editBtn">✏️ 编辑</button>
+    <button class="btn btn-ghost" id="delBtn">🗑 删除</button>
+    <button class="btn btn-ghost" id="exportBtn">📋 导出日记</button>
+    <button class="btn btn-primary" id="shareBtn" style="padding:10px 18px;font-size:13px">📤 分享</button>
+  </div>
+
+  <div class="det-body">
+    <div class="panel">
+      <div class="panel-head"><h3>📖 当时的心声</h3></div>
+      <div class="det-text" id="dText">（这条日记没有文字）</div>
+      <div class="edit-tags" id="editTagsBox" style="display:none"></div>
+      <div id="editActions" style="display:none;margin-top:12px;gap:10px">
+        <button class="btn btn-primary" id="saveEditBtn">💾 保存修改</button>
+        <button class="btn btn-ghost" id="cancelEditBtn">取消</button>
+      </div>
+
+      <!-- 前后日记导航 -->
+      <div class="neighbor-nav" id="neighborNav"></div>
+    </div>
+
+    <div>
+      <!-- 新增：当日备注卡片 -->
+      <div class="note-card">
+        <h4>📝 当日简短备注</h4>
+        <textarea class="note-input" id="noteInput" placeholder="写下今日简短感受、小事备注..."></textarea>
+      </div>
+
+      <!-- 心情趋势 -->
+      <div class="trend-wrap">
+        <h4>📈 近7次心情趋势</h4>
+        <div class="trend-bar" id="trendBar"></div>
+        <div class="trend-legend" id="trendLegend"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>💡 给你的建议</h3></div>
+        <ul class="suggest-list" id="suggestList"></ul>
+
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)">
+          <h3 style="font-size:14px;margin-bottom:10px">💬 想不想试试这些</h3>
+          <a class="btn btn-primary" href="breath_tsll.html" style="margin-bottom:8px">🌬️ 呼吸训练</a>
+          <a class="btn btn-ghost" href="meditation_tsll.html" style="margin-bottom:8px">🧘 冥想 5 分钟</a>
+          <a class="btn btn-ghost" href="appointment_tsll.html">📞 联系咨询师</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 新增回到顶部按钮 -->
+<button class="back-top" id="backTopBtn">↑</button>
+
+<script src="../assets/js/site_tsll.js"></script>
+<script>
+injectTopbar('mood');
+injectContactBar();
+const user = requireLogin();
+if(!user) location.href = 'login_tsll.html';
+
+// ===================== 全局常量统一管理 =====================
+const SCORE_TEXT = ['','非常糟糕的一刻','有些不开心','平平淡淡','心情不错','非常美好的一天'];
+const SCORE_SHORT = ['','很差','不好','一般','不错','很好'];
+const SCORE_COLOR = ['','#E07A5F','#FFB347','#FFD580','#7BC4A0','#F5A623'];
+const SCORE_EMOJI = ['','😢','😞','😐','🙂','😄'];
+const ALL_EDIT_TAGS = ['学习','人际','家庭','爱情','健康','未来'];
+const SUGGEST_MAP = {
+  1:[
+    {i:'🤗',t:'允许自己难过',d:'情绪没有对错，难过是身体在告诉你需要休息'},
+    {i:'📞',t:'拨通信任的电话',d:'让一个温暖的声音把你接住'},
+    {i:'🌬️',t:'尝试 4-7-8 呼吸',d:'缓慢呼吸能让身体先放松下来'}
+  ],
+  2:[
+    {i:'🚶',t:'出门散步 15 分钟',d:'阳光与移动是天然的解压剂'},
+    {i:'📝',t:'写下三件感激的事',d:'练习把注意力从压力源移开'},
+    {i:'🎵',t:'听一首治愈的歌',d:'音乐是最温柔的陪伴'}
+  ],
+  3:[
+    {i:'☕',t:'给自己泡杯热茶',d:'安静地坐下，专注于此刻'},
+    {i:'📚',t:'看一本喜欢的书',d:'让思绪沉浸在故事里'},
+    {i:'🌿',t:'冥想 5 分钟',d:'让心慢下来，感受呼吸'}
+  ],
+  4:[
+    {i:'🌟',t:'记住这份美好',d:'好心情值得被珍藏'},
+    {i:'💌',t:'分享给身边的人',d:'快乐分享会变成两份'},
+    {i:'🎨',t:'做一件创造性的事',d:'画画、写诗、烘焙都很棒'}
+  ],
+  5:[
+    {i:'🎉',t:'庆祝这一刻',d:'你值得为美好的心情干杯'},
+    {i:'📸',t:'记录此刻的画面',d:'用照片或文字定格幸福'},
+    {i:'❤️',t:'传递这份阳光',d:'给身边人一个微笑或拥抱'}
+  ]
+};
+
+// ===================== 存储 KEY 常量 =====================
+const KEY_MOODS = `sm_moods_${user.id}`;
+const KEY_FAV = `sm_mood_favs_${user.id}`;
+const KEY_DRAFT = `sm_mood_draft_${user.id}`;
+
+// ===================== DOM 节点全局缓存（只查询一次DOM） =====================
+const dom = {
+  detailHero: document.getElementById('detailHero'),
+  favBtn: document.getElementById('favBtn'),
+  dEmj: document.getElementById('dEmj'),
+  dTitle: document.getElementById('dTitle'),
+  dTime: document.getElementById('dTime'),
+  dTags: document.getElementById('dTags'),
+  dText: document.getElementById('dText'),
+  actionBar: document.getElementById('actionBar'),
+  editBtn: document.getElementById('editBtn'),
+  delBtn: document.getElementById('delBtn'),
+  exportBtn: document.getElementById('exportBtn'),
+  shareBtn: document.getElementById('shareBtn'),
+  editTagsBox: document.getElementById('editTagsBox'),
+  editActions: document.getElementById('editActions'),
+  saveEditBtn: document.getElementById('saveEditBtn'),
+  cancelEditBtn: document.getElementById('cancelEditBtn'),
+  neighborNav: document.getElementById('neighborNav'),
+  trendBar: document.getElementById('trendBar'),
+  trendLegend: document.getElementById('trendLegend'),
+  suggestList: document.getElementById('suggestList'),
+  noteInput: document.getElementById('noteInput'),
+  backTopBtn: document.getElementById('backTopBtn')
+};
+
+// ===================== 工具函数封装 =====================
+function getUrlId(){
+  const params = new URLSearchParams(location.search);
+  return Number(params.get('id')) || 0;
+}
+function getMoodList(){
+  const str = localStorage.getItem(KEY_MOODS);
+  return str ? JSON.parse(str) : [];
+}
+function saveMoodList(list){
+  localStorage.setItem(KEY_MOODS, JSON.stringify(list));
+}
+function getFavSet(){
+  const str = localStorage.getItem(KEY_FAV);
+  return new Set(str ? JSON.parse(str) : []);
+}
+function saveFavSet(set){
+  localStorage.setItem(KEY_FAV, JSON.stringify(Array.from(set)));
+}
+// 草稿临时存储（新增）
+function getDraft(){
+  const draftStr = localStorage.getItem(KEY_DRAFT);
+  return draftStr ? JSON.parse(draftStr) : {};
+}
+function saveDraft(id, data){
+  const draft = getDraft();
+  draft[id] = data;
+  localStorage.setItem(KEY_DRAFT, JSON.stringify(draft));
+}
+function clearDraft(id){
+  const draft = getDraft();
+  delete draft[id];
+  localStorage.setItem(KEY_DRAFT, JSON.stringify(draft));
+}
+
+// ===================== 页面核心变量 =====================
+const moodId = getUrlId();
+let moodList = getMoodList();
+let currentMood = moodList.find(item => item.id === moodId);
+let isEditing = false;
+
+if(!currentMood){
+  document.querySelector('main').innerHTML += '<div class="panel"><h3>未找到该日记</h3></div>';
+}else{
+  const currIndex = moodList.findIndex(item => item.id === moodId);
+  const prevMood = moodList[currIndex - 1] || null;
+  const nextMood = moodList[currIndex + 1] || null;
+
+  // 渲染主日记信息
+  function renderMain(){
+    const favSet = getFavSet();
+    const isFav = favSet.has(moodId);
+    // 基础信息
+    dom.dEmj.textContent = currentMood.emj;
+    dom.dTitle.textContent = SCORE_TEXT[currentMood.score];
+    dom.dTime.textContent = fmtTime(currentMood.time);
+    dom.dTags.innerHTML = (currentMood.tags || []).map(t => `<span class="tag">#${t}</span>`).join('');
+    dom.favBtn.textContent = isFav ? '❤️' : '🤍';
+    dom.favBtn.classList.toggle('faved', isFav);
+    // 正文
+    if(currentMood.text?.trim()) dom.dText.textContent = currentMood.text;
+    else dom.dText.innerHTML = '<span style="color:var(--muted)">（这条日记没有文字）</span>';
+    // 新增备注渲染
+    dom.noteInput.value = currentMood.note || '';
+    // 前后导航
+    dom.neighborNav.innerHTML = `
+      <a href="${prevMood ? `mood-detail_tsll.html?id=${prevMood.id}` : '#'}" class="${prevMood ? '' : 'disabled'}">← ${prevMood ? prevMood.emj + ' 上一条' : '没有上一条'}</a>
+      <a href="${nextMood ? `mood-detail_tsll.html?id=${nextMood.id}` : '#'}" class="${nextMood ? '' : 'disabled'}">${nextMood ? nextMood.emj + ' 下一条' : '没有下一条'} →</a>
+    `;
+  }
+
+  // 渲染心情趋势
+  function renderTrend(){
+    const recent7 = moodList.slice(0,7).reverse();
+    if(!recent7.length){
+      dom.trendBar.innerHTML = '<div style="color:var(--muted);font-size:12px">暂无足够数据</div>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    recent7.forEach(item => {
+      const col = document.createElement('div');
+      col.className = 'tb-col';
+      const height = item.score * 14;
+      const date = new Date(item.time);
+      const dateText = `${date.getMonth()+1}/${date.getDate()}`;
+      const isCurr = item.id === moodId;
+      col.innerHTML = `
+        <div class="tb-bar" style="height:${height}px;background:${SCORE_COLOR[item.score]};${isCurr?'box-shadow:0 0 0 2px var(--accent);':''}"></div>
+        <span style="font-size:14px">${SCORE_EMOJI[item.score]}</span>
+        <span class="tb-date">${dateText}</span>
+      `;
+      frag.appendChild(col);
+    });
+    dom.trendBar.innerHTML = '';
+    dom.trendBar.appendChild(frag);
+    dom.trendLegend.innerHTML = `
+      <span><i style="background:${SCORE_COLOR[1]}"></i>很差</span>
+      <span><i style="background:${SCORE_COLOR[2]}"></i>不好</span>
+      <span><i style="background:${SCORE_COLOR[3]}"></i>一般</span>
+      <span><i style="background:${SCORE_COLOR[4]}"></i>不错</span>
+      <span><i style="background:${SCORE_COLOR[5]}"></i>很好</span>
+    `;
+  }
+
+  // 渲染建议列表
+  function renderSuggest(){
+    const dataList = SUGGEST_MAP[currentMood.score] || [];
+    dom.suggestList.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    dataList.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span style="font-size:24px">${item.i}</span>
+        <div>
+          <strong>${item.t}</strong><br>
+          <small style="color:var(--muted)">${item.d}</small>
+        </div>
+      `;
+      frag.appendChild(li);
+    });
+    dom.suggestList.appendChild(frag);
+  }
+
+  // 全部页面渲染入口
+  function fullRender(){
+    renderMain();
+    renderTrend();
+    renderSuggest();
+  }
+  fullRender();
+
+  // ===================== 收藏切换逻辑 =====================
+  dom.favBtn.addEventListener('click', () => {
+    const favSet = getFavSet();
+    if(favSet.has(moodId)){
+      favSet.delete(moodId);
+      toast('已取消收藏','ok');
+    }else{
+      favSet.add(moodId);
+      toast('已收藏 ❤️','ok');
+    }
+    saveFavSet(favSet);
+    renderMain();
+  });
+
+  // ===================== 删除日记 =====================
+  dom.delBtn.addEventListener('click', () => {
+    if(!confirm('确定永久删除这条日记？无法恢复')) return;
+    moodList = moodList.filter(item => item.id !== moodId);
+    saveMoodList(moodList);
+    clearDraft(moodId);
+    toast('删除成功','ok');
+    setTimeout(() => location.href = 'mood-list_tsll.html', 600);
+  });
+
+  // ===================== 分享按钮 =====================
+  dom.shareBtn.addEventListener('click', () => {
+    const text = `【晴心情绪日记】\n${fmtTime(currentMood.time)} ${currentMood.emj} ${SCORE_SHORT[currentMood.score]}\n${currentMood.text || '无文字记录'}`;
+    navigator.clipboard.writeText(text).then(() => toast('分享内容已复制','ok')).catch(() => toast('复制失败，请手动复制','err'));
+  });
+
+  // ===================== 新增：导出完整日记 =====================
+  dom.exportBtn.addEventListener('click', () => {
+    const tagsStr = (currentMood.tags || []).map(t => `#${t}`).join(' ');
+    const noteStr = currentMood.note ? `\n【当日备注】${currentMood.note}` : '';
+    const exportText = `
+===== 晴心情绪日记 =====
+记录时间：${fmtTime(currentMood.time)}
+心情状态：${currentMood.emj} ${SCORE_TEXT[currentMood.score]}
+标签：${tagsStr || '无'}
+
+日记正文：
+${currentMood.text || '（空白记录）'}
+${noteStr}
+=========================
+    `.trim();
+    navigator.clipboard.writeText(exportText).then(() => toast('完整日记已复制导出','ok')).catch(() => toast('复制失败','err'));
+  });
+
+  // ===================== 编辑功能 + 草稿自动保存 =====================
+  dom.editBtn.addEventListener('click', () => {
+    isEditing = true;
+    // 读取本地草稿，恢复未保存内容
+    const draft = getDraft();
+    const draftData = draft[moodId] || {};
+    const originText = draftData.text ?? currentMood.text ?? '';
+    const originTags = draftData.tags ?? currentMood.tags ?? [];
+
+    // 替换文本域
+    dom.dText.innerHTML = `<textarea class="edit-textarea" id="editArea">${originText}</textarea>`;
+    const editArea = document.getElementById('editArea');
+    // 实时自动保存草稿
+    editArea.addEventListener('input', () => {
+      saveDraft(moodId, {
+        text: editArea.value,
+        tags: getSelectedTags()
+      });
+    });
+
+    // 渲染标签选择
+    dom.editTagsBox.style.display = 'flex';
+    dom.editTagsBox.innerHTML = ALL_EDIT_TAGS.map(tag => {
+      const active = originTags.includes(tag);
+      return `<span class="edit-tag ${active ? 'on' : ''}" data-tag="${tag}">#${tag}</span>`;
+    }).join('');
+    // 标签点击+草稿自动保存
+    dom.editTagsBox.querySelectorAll('.edit-tag').forEach(tagEl => {
+      tagEl.addEventListener('click', () => {
+        tagEl.classList.toggle('on');
+        saveDraft(moodId, {
+          text: editArea.value,
+          tags: getSelectedTags()
+        });
+      });
+    });
+
+    dom.editActions.style.display = 'flex';
+    dom.editBtn.style.display = 'none';
+    dom.actionBar.style.display = 'none';
+  });
+
+  // 获取选中标签工具
+  function getSelectedTags(){
+    const arr = [];
+    document.querySelectorAll('.edit-tag.on').forEach(el => arr.push(el.dataset.tag));
+    return arr;
+  }
+
+  // 取消编辑
+  dom.cancelEditBtn.addEventListener('click', () => {
+    isEditing = false;
+    dom.editActions.style.display = 'none';
+    dom.editTagsBox.style.display = 'none';
+    dom.editBtn.style.display = 'inline-flex';
+    dom.actionBar.style.display = 'flex';
+    fullRender();
+  });
+
+  // 保存编辑（清除草稿）
+  dom.saveEditBtn.addEventListener('click', () => {
+    const editArea = document.getElementById('editArea');
+    const newText = editArea.value.trim();
+    const newTags = getSelectedTags();
+    const newNote = dom.noteInput.value.trim();
+    // 更新数据
+    currentMood.text = newText;
+    currentMood.tags = newTags;
+    currentMood.note = newNote;
+    saveMoodList(moodList);
+    // 清除临时草稿
+    clearDraft(moodId);
+    toast('修改已保存','ok');
+    isEditing = false;
+    dom.editActions.style.display = 'none';
+    dom.editTagsBox.style.display = 'none';
+    dom.editBtn.style.display = 'inline-flex';
+    dom.actionBar.style.display = 'flex';
+    fullRender();
+  });
+
+  // 备注实时自动保存
+  dom.noteInput.addEventListener('input', () => {
+    currentMood.note = dom.noteInput.value;
+    saveMoodList(moodList);
+  });
+}
+
+// ===================== 新增：回到顶部滚动监听 =====================
+window.addEventListener('scroll', () => {
+  if(window.scrollY > 300){
+    dom.backTopBtn.classList.add('show');
+  }else{
+    dom.backTopBtn.classList.remove('show');
+  }
+});
+dom.backTopBtn.addEventListener('click', () => {
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>

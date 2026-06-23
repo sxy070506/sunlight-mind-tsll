@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · 晴心 SunlightMind</title>
+<style>
+:root{--bg:#FFFCF5;--bg2:#FFF5E1;--ink:#4A3F35;--muted:#9C8B7A;--rule:#F0E5D2;--accent:#F5A623;--accent2:#7BC4A0;--err:#E07A5F;--ok:#7BC4A0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft Yahei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex}
+
+.left-panel{
+  flex:1;min-height:100vh;position:relative;
+  background:radial-gradient(circle at 70% 30%,rgba(123,196,160,.4),transparent 50%),
+  linear-gradient(135deg,#A6D8E7 0%,#FFE4B5 50%,#F5A623 100%);
+  display:flex;align-items:center;justify-content:center;overflow:hidden
+}
+.left-panel::before{
+  content:"";position:absolute;bottom:10%;left:10%;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,#FFD580,#F5A623 70%,transparent);
+  box-shadow:0 0 80px rgba(245,166,35,.5);animation:sun 6s ease-in-out infinite
+}
+@keyframes sun{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+.cloud{position:absolute;background:#fff;border-radius:50%;opacity:.6}
+.cloud.c1{width:120px;height:50px;top:20%;left:-100px;animation:fly 40s linear infinite}
+.cloud.c2{width:80px;height:35px;top:55%;right:-100px;animation:fly2 50s linear infinite}
+@keyframes fly{from{transform:translateX(0)}to{transform:translateX(120vw)}}
+@keyframes fly2{from{transform:translateX(0)}to{transform:translateX(-120vw)}}
+
+.illust{position:relative;z-index:2;text-align:center;color:#fff;padding:40px}
+.illust .ph{
+  width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;font-size:140px;margin:0 auto 30px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);position:relative;overflow:hidden
+}
+.illust .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.illust .ph.has-real .emoji{display:none}
+.illust .ph .emoji{position:relative;z-index:1}
+.illust h2{font-size:42px;font-weight:900;margin-bottom:16px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.illust p{font-size:18px;opacity:.95;line-height:1.8;max-width:360px;margin:0 auto}
+
+.brand-back{
+  position:absolute;top:30px;left:30px;color:#fff;text-decoration:none;font-size:14px;
+  display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;
+  background:rgba(255,255,255,.2);backdrop-filter:blur(8px)
+}
+
+.right-panel{flex:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.form-card{width:100%;max-width:420px;padding:50px 40px}
+.form-card h1{font-size:32px;font-weight:800;margin-bottom:8px}
+.form-card .sub{color:var(--muted);margin-bottom:36px;font-size:14px}
+
+.tabs{display:flex;gap:0;margin-bottom:30px;border-bottom:2px solid var(--rule)}
+.tab{flex:1;padding:14px 0;text-align:center;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;position:relative;transition:color .2s}
+.tab.active{color:var(--accent)}
+.tab.active::after{content:"";position:absolute;bottom:-2px;left:25%;right:25%;height:3px;background:var(--accent);border-radius:2px}
+
+.field{margin-bottom:20px;position:relative}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.field-row{position:relative;display:flex;gap:10px}
+
+.input{
+  flex:1;width:100%;height:48px;padding:0 16px;border:2px solid var(--rule);border-radius:12px;
+  background:#fff;font-size:15px;outline:none;transition:.25s
+}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(245,166,35,.15)}
+.input.has-icon{padding-left:44px}
+
+.field-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px;pointer-events:none}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;z-index:2}
+
+.tip{font-size:12px;margin-top:6px;min-height:14px}
+.tip.err{color:var(--err)}
+.tip.ok{color:var(--ok)}
+
+.options{display:flex;justify-content:space-between;align-items:center;margin:14px 0 24px;font-size:13px}
+.remember{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.remember input{accent-color:var(--accent)}
+.options a{color:var(--accent);text-decoration:none}
+
+.btn-submit{
+  width:100%;height:52px;border:none;border-radius:12px;font-size:16px;font-weight:700;
+  background:linear-gradient(135deg,#F5A623,#FF8C42);color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(245,166,35,.4);transition:.25s
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(245,166,35,.5)}
+
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:24px 0}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+.social{display:flex;gap:12px;justify-content:center}
+.social-btn{
+  width:46px;height:46px;border-radius:50%;border:2px solid var(--rule);background:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:.2s
+}
+.social-btn:hover{border-color:var(--accent);transform:translateY(-3px)}
+
+.bottom{text-align:center;margin-top:24px;font-size:14px;color:var(--muted)}
+.bottom a{color:var(--accent);text-decoration:none;font-weight:600}
+
+.code-btn{
+  height:48px;padding:0 18px;border:2px solid var(--accent);background:transparent;color:var(--accent);
+  border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap
+}
+.code-btn:hover:not(:disabled){background:var(--accent);color:#fff}
+.code-btn:disabled{opacity:.5;cursor:not-allowed;border-color:var(--muted);color:var(--muted)}
+
+.toast{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-200%);
+  background:var(--ink);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;
+  z-index:999;transition:.35s
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--err)}
+
+.hide{display:none!important}
+
+@media (max-width:900px){
+  body{flex-direction:column}
+  .left-panel{min-height:240px}
+  .illust .ph{width:160px;height:160px;font-size:72px}
+  .illust h2{font-size:24px}
+  .illust p{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<aside class="left-panel">
+  <a class="brand-back" href="../index_tsll.html">← 返回首页</a>
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="illust">
+    <div class="ph">
+      <img src="../assets/images/login-illu.jpg" alt="登录插画" onload="this.parentElement.classList.add('has-real')" onerror="this.style.display='none'">
+      <span class="emoji">☁️</span>
+    </div>
+    <h2>欢迎回家</h2>
+    <p>欢迎回到晴心，<br>今天的你，心情还好吗？</p>
+  </div>
+</aside>
+
+<section class="right-panel">
+  <div class="form-card">
+    <h1>登录账户</h1>
+    <p class="sub">还没有账户？<a href="register_tsll.html" style="color:var(--accent);text-decoration:none;font-weight:600">立即注册</a></p>
+
+    <div class="tabs">
+      <div class="tab active" data-mode="account">账号密码登录</div>
+      <div class="tab" data-mode="phone">手机验证码登录</div>
+    </div>
+
+    <form id="form-account">
+      <div class="field">
+        <label>用户名</label>
+        <div class="field-row">
+          <span class="field-icon">👤</span>
+          <input class="input has-icon" id="lg-username" placeholder="用户名">
+        </div>
+        <div class="tip" id="tip-username"></div>
+      </div>
+
+      <div class="field">
+        <label>密码</label>
+        <div class="field-row">
+          <span class="field-icon">🔒</span>
+          <input class="input has-icon" id="lg-password" type="password" placeholder="密码">
+          <button type="button" class="eye" id="togglePwd">👁</button>
+        </div>
+        <div class="tip" id="tip-password"></div>
+      </div>
+
+      <div class="options">
+        <label class="remember"><input type="checkbox" id="remember"> 记住密码</label>
+        <a href="forgot_tsll.html">忘记密码？</a>
+      </div>
+
+      <button class="btn-submit" id="btn-account">登 录</button>
+    </form>
+
+    <form id="form-phone" class="hide">
+      <div class="field">
+        <label>手机号</label>
+        <div class="field-row">
+          <span class="field-icon">📱</span>
+          <input class="input has-icon" id="lg-phone" placeholder="11 位手机号" maxlength="11">
+        </div>
+        <div class="tip" id="tip-phone"></div>
+      </div>
+
+      <div class="field">
+        <label>验证码</label>
+        <div class="field-row">
+          <input class="input" id="lg-code" placeholder="6 位验证码" maxlength="6" style="flex:1">
+          <button type="button" class="code-btn" id="getCode">获取验证码</button>
+        </div>
+        <div class="tip" id="tip-code"></div>
+      </div>
+
+      <div style="height:24px"></div>
+      <button class="btn-submit" id="btn-phone">登 录</button>
+    </form>
+
+    <div class="divider">其他登录方式</div>
+    <div class="social">
+      <button class="social-btn" title="微信">💬</button>
+      <button class="social-btn" title="QQ">🐧</button>
+      <button class="social-btn" title="校园卡">🎓</button>
+      <button class="social-btn" title="邮箱">✉️</button>
+    </div>
+
+    <div class="bottom">登录即代表同意 <a href="#">用户协议</a> · ts'll 出品</div>
+    <div style="margin-top:16px;padding:12px 16px;background:#FFF5E1;border-radius:10px;font-size:12px;color:#5e4f3f;text-align:center;line-height:1.8">
+      <b>📞 心理援助</b> · 校心理咨询中心 <b>0571-8820-1234</b> · 全国希望热线 <b>400-161-9995</b> · 紧急拨打 <b style="color:#E07A5F">110/120</b>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+//  toast 显示时间加长到 4.5 秒
+const toast = (msg, type = '') => {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => {
+    t.className = 'toast ' + type;
+  }, 4500);
+};
+
+const REG = {
+  phone: /^1[3-9]\d{9}$/,
+  code: /^\d{6}$/,
+  password: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d_!@#$%^&*]{8,16}$/
+};
+
+// 登录切换
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const mode = t.dataset.mode;
+    $('form-account').classList.toggle('hide', mode !== 'account');
+    $('form-phone').classList.toggle('hide', mode !== 'phone');
+  });
+});
+
+// 记住密码回填
+const remembered = JSON.parse(localStorage.getItem('sm_remember') || 'null');
+if (remembered) {
+  $('lg-username').value = remembered.username;
+  $('lg-password').value = remembered.password;
+  $('remember').checked = true;
+}
+
+// 显示/隐藏密码
+$('togglePwd').addEventListener('click', () => {
+  const i = $('lg-password');
+  i.type = i.type === 'password' ? 'text' : 'password';
+});
+
+// 账号密码登录
+$('btn-account').addEventListener('click', e => {
+  e.preventDefault();
+  const username = $('lg-username').value.trim();
+  const password = $('lg-password').value;
+
+  if (!username) return toast('请输入用户名', 'err');
+  if (!password) return toast('请输入密码', 'err');
+
+  const users = JSON.parse(localStorage.getItem('sm_users') || '[]');
+  const user = users.find(u => u.username === username);
+
+  if (!user) {
+    // 演示账户
+    if (username === 'demo' && password === 'demo1234') {
+      const demoUser = {
+        id: 1,
+        username: 'demo',
+        phone: '13800000000',
+        password: 'demo1234',
+        avatar: '🌻',
+        bio: '晴心演示账户',
+        school: '浙江机电职业技术大学',
+        joinDate: '2026-06-01',
+        streak: 7,
+        points: 520
+      };
+      doLogin(demoUser);
+      return;
+    }
+    return toast('用户不存在，请先注册', 'err');
+  }
+
+  if (user.password !== password) return toast('密码错误', 'err');
+
+  if ($('remember').checked) {
+    localStorage.setItem('sm_remember', JSON.stringify({ username, password }));
+  } else {
+    localStorage.removeItem('sm_remember');
+  }
+
+  doLogin(user);
+});
+
+// 验证码倒计时
+let timer = null;
+$('getCode').addEventListener('click', () => {
+  const phone = $('lg-phone').value.trim();
+  if (!REG.phone.test(phone)) return toast('请输入正确手机号', 'err');
+
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  sessionStorage.setItem('sm_code_' + phone, code);
+  toast('📩 验证码：' + code + '（演示）', 'ok');
+
+  let s = 60;
+  const btn = $('getCode');
+  btn.disabled = true;
+  btn.textContent = `${s} 秒后重发`;
+
+  timer = setInterval(() => {
+    s--;
+    if (s <= 0) {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.textContent = '获取验证码';
+    } else {
+      btn.textContent = `${s} 秒后重发`;
+    }
+  }, 1000);
+});
+
+// 短信登录
+$('btn-phone').addEventListener('click', e => {
+  e.preventDefault();
+  const phone = $('lg-phone').value.trim();
+  const code = $('lg-code').value.trim();
+
+  if (!REG.phone.test(phone)) return toast('请检查手机号', 'err');
+  if (!REG.code.test(code)) return toast('请输入 6 位验证码', 'err');
+  if (sessionStorage.getItem('sm_code_' + phone) !== code) return toast('验证码错误或已过期', 'err');
+
+  const users = JSON.parse(localStorage.getItem('sm_users') || '[]');
+  let user = users.find(u => u.phone === phone);
+
+  if (!user) {
+    user = {
+      id: Date.now(),
+      username: '晴友' + phone.slice(-4),
+      phone: phone,
+      password: '',
+      avatar: '🌸',
+      bio: '手机注册的新晴友',
+      school: '浙江机电职业技术大学',
+      joinDate: new Date().toISOString().slice(0, 10),
+      streak: 0,
+      points: 100
+    };
+    users.push(user);
+    localStorage.setItem('sm_users', JSON.stringify(users));
+  }
+
+  doLogin(user);
+});
+
+// 登录统一处理
+function doLogin(user) {
+  localStorage.setItem('sm_currentUser', JSON.stringify(user));
+
+  const log = JSON.parse(localStorage.getItem('sm_loginLog') || '[]');
+  log.unshift({
+    time: new Date().toLocaleString('zh-CN'),
+    userId: user.id,
+    ip: '127.0.0.1（演示）'
+  });
+  localStorage.setItem('sm_loginLog', JSON.stringify(log.slice(0, 30)));
+
+  toast('🎉 登录成功，欢迎回来 ' + user.username, 'ok');
+  setTimeout(() => {
+    location.href = '../index_tsll.html';
+  }, 1200);
+}
+
+// 头像悬浮动效
+const loginIllu = document.querySelector('.illust .ph');
+if (loginIllu) {
+  loginIllu.style.transition = 'transform .22s ease, box-shadow .22s ease';
+  loginIllu.style.transformStyle = 'preserve-3d';
+  loginIllu.style.willChange = 'transform';
+  loginIllu.style.cursor = 'pointer';
+
+  loginIllu.addEventListener('mousemove', e => {
+    const rect = loginIllu.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percent = x / rect.width;
+
+    if (percent < 0.5) {
+      loginIllu.style.transform = 'perspective(900px) rotateZ(-7deg) rotateY(-12deg) scale(1.04)';
+    } else {
+      loginIllu.style.transform = 'perspective(900px) rotateZ(7deg) rotateY(12deg) scale(1.04)';
+    }
+    loginIllu.style.boxShadow = '0 28px 72px rgba(0,0,0,.22)';
+  });
+
+  loginIllu.addEventListener('mouseleave', () => {
+    loginIllu.style.transform = 'perspective(900px) rotateZ(0deg) rotateY(0deg) scale(1)';
+    loginIllu.style.boxShadow = '0 20px 60px rgba(0,0,0,.15)';
+  });
+}
+</script>
+</body>
+</html>

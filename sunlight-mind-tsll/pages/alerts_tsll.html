@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>校园预警 · 晴心 SunlightMind</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="../assets/css/site_tsll.css" />
+<script src="../_shared/js/echarts.min.js"></script>
+<style>
+  /* === 预警列表 alerts_tsll === */
+  .alert-hero{
+    background:linear-gradient(135deg,#FFB7B2 0%,#FFD580 100%);
+    border-radius:20px;padding:36px;margin-bottom:24px;
+    display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:center;position:relative;overflow:hidden
+  }
+  @media(max-width:780px){.alert-hero{grid-template-columns:1fr}}
+  .alert-hero h1{font-size:28px;font-weight:800}
+  .alert-hero p{margin-top:8px;color:#5e4f3f;line-height:1.8}
+  .alert-hero .ph-shield{
+    width:100%;aspect-ratio:1.3;border-radius:14px;
+    background:linear-gradient(135deg,rgba(255,255,255,.4),rgba(245,166,35,.4));
+    display:flex;align-items:center;justify-content:center;font-size:90px;
+    border:2px dashed rgba(255,255,255,.7);position:relative;overflow:hidden
+  }
+  .alert-hero .ph-shield img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .alert-hero .ph-shield.has-real-img{border:0}
+  .alert-hero .ph-shield.has-real-img .img-fallback{display:none}
+  .alert-hero .ph-shield .img-fallback{position:relative;z-index:1}
+  .alert-hero .ph-shield::after{content:"图片位:盾牌/守护插画 (assets/images/shield.png)";position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:10px;color:#5e4f3f}
+
+  /* KPI */
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  @media(max-width:780px){.kpi{grid-template-columns:repeat(2,1fr)}}
+  .kpi .it{background:#fff;padding:18px;border-radius:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .it::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;opacity:.3}
+  .kpi .it.h::before{background:#E07A5F}
+  .kpi .it.m::before{background:#F5A623}
+  .kpi .it.l::before{background:#7BC4A0}
+  .kpi .it.t::before{background:#A6D8E7}
+  .kpi b{font-size:26px;display:block;font-weight:800}
+  .kpi small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+
+  /* Filter */
+  .filter-bar{background:#fff;padding:16px;border-radius:14px;box-shadow:var(--shadow);margin-bottom:18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .filter-bar > div{display:flex;align-items:center;gap:6px}
+  .filter-bar .lbl{font-size:13px;color:var(--muted)}
+  .filter-bar select{padding:6px 14px;border:1.5px solid var(--rule);border-radius:999px;font-size:13px;outline:none;background:#fff}
+  .filter-bar input{padding:6px 14px;border:1.5px solid var(--rule);border-radius:999px;font-size:13px;outline:none}
+
+  /* 主体 */
+  .layout{display:grid;grid-template-columns:1fr 320px;gap:20px}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  table th{padding:12px;background:linear-gradient(135deg,#FFE4B5,#FFD580);color:#5e4f3f;font-weight:700;text-align:left;font-size:12px}
+  table th:first-child{border-top-left-radius:10px}
+  table th:last-child{border-top-right-radius:10px}
+  table td{padding:14px 12px;border-bottom:1px dashed var(--rule)}
+  table tr:hover td{background:#FFFAEC}
+
+  .lvl{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:700}
+  .lvl.h{background:#FBE0DC;color:#E07A5F}
+  .lvl.m{background:#FFE4B5;color:#B87333}
+  .lvl.l{background:#D9F0DD;color:#4A9D6F}
+  .lvl::before{content:"●";font-size:8px}
+
+  .badge-st{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600}
+  .st-pending{background:#FFE4B5;color:#B87333}
+  .st-process{background:#A6D8E7;color:#2A7A92}
+  .st-resolved{background:#D9F0DD;color:#4A9D6F}
+
+  .row-act a{color:var(--accent);font-size:12px;margin:0 4px;text-decoration:none}
+  .row-act a:hover{text-decoration:underline}
+
+  #chartLvl,#chartTrend{height:240px;margin-top:8px}
+
+  /* 分页 */
+  .pager{display:flex;justify-content:center;gap:6px;margin-top:18px}
+  .pager span{padding:6px 12px;border:1.5px solid var(--rule);border-radius:8px;cursor:pointer;font-size:13px;background:#fff}
+  .pager span.on{background:var(--accent);color:#fff;border-color:transparent}
+
+  /* 滚动通知带 */
+  .marquee{background:linear-gradient(90deg,#E07A5F,#F5A623);color:#fff;padding:10px 20px;border-radius:12px;display:flex;align-items:center;gap:14px;margin-bottom:20px;overflow:hidden}
+  .marquee b{flex-shrink:0;background:rgba(255,255,255,.3);padding:3px 10px;border-radius:6px;font-size:12px}
+  .mq-content{flex:1;overflow:hidden;white-space:nowrap;animation:mqScroll 25s linear infinite;font-size:13px}
+  @keyframes mqScroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+</style>
+</head>
+<body>
+<div class="wrap" style="padding-top:0">
+
+  <section class="alert-hero">
+    <div>
+      <h1>🛡️ 校园心理预警监测</h1>
+      <p>基于多维度数据 (问卷、行为、生理) 的早期识别与干预<br />守护每一位同学的心理健康,让风险及早被看见。</p>
+    </div>
+    <div class="ph-shield"><img src="../assets/images/shield.png" alt="预警守护插画" onload="this.parentElement.classList.add('has-real-img')" onerror="this.style.display='none'"><span class="img-fallback">🛡️</span></div>
+  </section>
+
+  <!-- 滚动通知 -->
+  <div class="marquee">
+    <b>📢 实时</b>
+    <div class="mq-content">软件 21 班 · 同学 A 抑郁量表评分 22 分 (中度) ｜ 计算机学院 · 同学 B 连续 7 天未参与活动 ｜ 经济管理学院 · 集体测评焦虑均值高于阈值 ｜ 已对接咨询中心,3 例已介入</div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi">
+    <div class="it h"><b>14</b><small>🔴 高危预警</small></div>
+    <div class="it m"><b>56</b><small>⚠️中度预警</small></div>
+    <div class="it l"><b>122</b><small>💚 轻度预警</small></div>
+    <div class="it t"><b>192</b><small>📊 累计本月</small></div>
+  </div>
+
+  <!-- 过滤 -->
+  <div class="filter-bar">
+    <div><span class="lbl">学院</span>
+      <select id="fc">
+        <option>全部学院</option><option>人工智能学院</option><option>数字商贸学院</option><option>创意设计学院</option><option>增材制造学院</option><option>智慧交通学院</option>
+      </select>
+    </div>
+    <div><span class="lbl">等级</span>
+      <select id="fl">
+        <option>全部</option><option>高危</option><option>中度</option><option>轻度</option>
+      </select>
+    </div>
+    <div><span class="lbl">状态</span>
+      <select id="fs">
+        <option>全部</option><option>待处理</option><option>跟进中</option><option>已解决</option>
+      </select>
+    </div>
+    <div><span class="lbl">来源</span>
+      <select id="fr">
+        <option>全部</option><option>问卷测评</option><option>行为分析</option><option>主动求助</option><option>师生反映</option>
+      </select>
+    </div>
+    <div style="flex:1;min-width:180px"><input id="fk" placeholder="🔎 搜索学号/姓名/关键词" /></div>
+  </div>
+
+  <div class="layout">
+    <main>
+      <section class="panel">
+        <div class="panel-head"><h3>🚨 预警事件列表</h3><span class="more" id="exportBtn">📥 导出</span></div>
+        <div style="overflow-x:auto">
+          <table id="tbl">
+            <thead>
+              <tr><th>编号</th><th>对象</th><th>学院</th><th>等级</th><th>来源</th><th>触发原因</th><th>时间</th><th>状态</th><th>操作</th></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="pager" id="pager"></div>
+      </section>
+    </main>
+
+    <aside>
+      <section class="panel">
+        <div class="panel-head"><h3>📊 等级分布</h3></div>
+        <div id="chartLvl"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>📈 近 7 日趋势</h3></div>
+        <div id="chartTrend"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>💡 干预建议</h3></div>
+        <div style="font-size:13px;line-height:1.9;color:#5e4f3f">
+          · 高危案例须 24h 内介入<br />
+          · 中度案例分配辅导员定期跟进<br />
+          · 轻度可推荐自助资源 + 团体活动<br />
+          · 持续观察 14 天评估闭环<br />
+          · 关键时刻拨打 <b style="color:var(--err)">96525</b>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+</div>
+
+<script src="../assets/js/site_tsll.js"></script>
+<script>
+  injectTopbar('dashboard');
+  injectContactBar();
+
+  /* 模拟数据(40条) */
+  const COL = ['人工智能学院','数字商贸学院','创意设计学院','增材制造学院','智慧交通学院'];
+  const REASONS = ['PHQ-9 评分>15','GAD-7 评分>14','PSS-10 评分>27','连续7日未签到','日记情绪连续低分','失眠日记>5天','社交活动锐减','匿名求助高风险词'];
+  const SOURCES = ['问卷测评','行为分析','主动求助','师生反映'];
+  function rndN(){return '20'+(20+Math.floor(Math.random()*5))+String(Math.floor(Math.random()*9000+1000));}
+  function rndName(){
+    const x=['张','李','王','刘','陈','杨','赵','黄','周','吴','徐','孙','马','朱','胡','林'];
+    const y=['雨','清','晓','安','心','欣','明','哲','航','悦','晨','瑞','倩','涵','宇','瑶'];
+    const z=['','晴','轩','彤','然','睿','怡','涛','茜'];
+    return x[~~(Math.random()*x.length)]+y[~~(Math.random()*y.length)]+z[~~(Math.random()*z.length)];
+  }
+  const LV = ['h','m','l']; const ST=['pending','process','resolved'];
+  function rndDate(){
+    const d=new Date(Date.now()-Math.random()*7*86400000);
+    return d.getMonth()+1+'-'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  const RAW = [];
+  for(let i=0;i<40;i++){
+    const lv = i<6? 'h' : i<20? 'm' : 'l';
+    RAW.push({
+      id:'W'+String(20240700+i+1),
+      sid:rndN(),
+      name:rndName(),
+      col:COL[~~(Math.random()*COL.length)],
+      lv,
+      src:SOURCES[~~(Math.random()*SOURCES.length)],
+      reason:REASONS[~~(Math.random()*REASONS.length)],
+      time:rndDate(),
+      st:i<14? 'pending' : i<26? 'process' : 'resolved'
+    });
+  }
+  let page=1, ps=10, filtered=RAW.slice();
+
+  function applyFilter(){
+    const c=document.getElementById('fc').value;
+    const lf=document.getElementById('fl').value;
+    const sf=document.getElementById('fs').value;
+    const rf=document.getElementById('fr').value;
+    const kw=document.getElementById('fk').value.trim();
+    const lvMap={高危:'h',中度:'m',轻度:'l'};
+    const stMap={待处理:'pending',跟进中:'process',已解决:'resolved'};
+    filtered = RAW.filter(r=>{
+      if(c!=='全部学院' && r.col!==c) return false;
+      if(lf!=='全部' && r.lv!==lvMap[lf]) return false;
+      if(sf!=='全部' && r.st!==stMap[sf]) return false;
+      if(rf!=='全部' && r.src!==rf) return false;
+      if(kw && !(r.sid.includes(kw)||r.name.includes(kw)||r.reason.includes(kw))) return false;
+      return true;
+    });
+    page=1; render();
+  }
+  function render(){
+    const lvText={h:'高危',m:'中度',l:'轻度'};
+    const stText={pending:'待处理',process:'跟进中',resolved:'已解决'};
+    const start=(page-1)*ps;
+    const slice=filtered.slice(start,start+ps);
+    document.getElementById('tbody').innerHTML = slice.length? slice.map(r=>`
+      <tr>
+        <td>${r.id}</td>
+        <td><b>${r.name}</b><br /><small style="color:var(--muted)">${r.sid}</small></td>
+        <td>${r.col}</td>
+        <td><span class="lvl ${r.lv}">${lvText[r.lv]}</span></td>
+        <td>${r.src}</td>
+        <td>${r.reason}</td>
+        <td>${r.time}</td>
+        <td><span class="badge-st st-${r.st}">${stText[r.st]}</span></td>
+        <td class="row-act"><a href="alert-detail_tsll.html?id=${r.id}">查看</a><a href="javascript:;" data-id="${r.id}">介入</a></td>
+      </tr>`).join('') : '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999">暂无符合条件的预警</td></tr>';
+
+    /* 分页 */
+    const total = Math.ceil(filtered.length/ps)||1;
+    let phtml = `<span data-p="prev">‹</span>`;
+    for(let i=1;i<=total;i++) phtml+=`<span data-p="${i}" class="${i===page?'on':''}">${i}</span>`;
+    phtml += `<span data-p="next">›</span>`;
+    document.getElementById('pager').innerHTML=phtml;
+
+    document.querySelectorAll('.row-act a[data-id]').forEach(a=>a.onclick=()=>{
+      toast('已分配辅导员介入','ok');
+      const r = RAW.find(x=>x.id===a.dataset.id); r.st='process'; render();
+    });
+  }
+  document.getElementById('pager').addEventListener('click',e=>{
+    if(e.target.tagName!=='SPAN') return;
+    const p=e.target.dataset.p;
+    const total = Math.ceil(filtered.length/ps)||1;
+    if(p==='prev') page=Math.max(1,page-1);
+    else if(p==='next') page=Math.min(total,page+1);
+    else page=+p;
+    render();
+  });
+  ['fc','fl','fs','fr','fk'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',applyFilter);
+    document.getElementById(id).addEventListener('change',applyFilter);
+  });
+  document.getElementById('exportBtn').onclick=()=>toast('已导出 alerts_'+Date.now()+'.csv','ok');
+
+  render();
+
+  /* 等级分布 */
+  echarts.init(document.getElementById('chartLvl'),null,{renderer:'svg'}).setOption({
+    tooltip:{trigger:'item'},
+    series:[{
+      type:'pie',radius:['45%','75%'],
+      label:{show:true,formatter:'{b}\n{d}%'},
+      data:[
+        {value:14,name:'高危',itemStyle:{color:'#E07A5F'}},
+        {value:56,name:'中度',itemStyle:{color:'#F5A623'}},
+        {value:122,name:'轻度',itemStyle:{color:'#7BC4A0'}}
+      ]
+    }]
+  });
+  /* 趋势 */
+  echarts.init(document.getElementById('chartTrend'),null,{renderer:'svg'}).setOption({
+    tooltip:{trigger:'axis'},
+    legend:{data:['高危','中度','轻度'],bottom:0,textStyle:{fontSize:11}},
+    grid:{left:30,right:14,top:10,bottom:38},
+    xAxis:{type:'category',data:['周一','周二','周三','周四','周五','周六','周日'],axisLine:{lineStyle:{color:'#9C8B7A'}}},
+    yAxis:{type:'value',axisLine:{show:false},splitLine:{lineStyle:{type:'dashed'}}},
+    series:[
+      {name:'高危',type:'line',smooth:true,data:[2,3,1,4,3,2,1],itemStyle:{color:'#E07A5F'},areaStyle:{opacity:.2}},
+      {name:'中度',type:'line',smooth:true,data:[8,12,9,15,11,7,6],itemStyle:{color:'#F5A623'},areaStyle:{opacity:.2}},
+      {name:'轻度',type:'line',smooth:true,data:[14,19,16,22,20,15,14],itemStyle:{color:'#7BC4A0'},areaStyle:{opacity:.2}}
+    ]
+  });
+</script>
+</body>
+</html>

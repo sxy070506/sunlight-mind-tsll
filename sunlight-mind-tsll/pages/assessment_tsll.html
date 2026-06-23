@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心理测评 · 晴心</title>
+<link rel="stylesheet" href="../assets/css/site_tsll.css">
+<style>
+.tests-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
+.test-card{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow);cursor:pointer;border:2px solid transparent;transition:.25s}
+.test-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 16px 40px rgba(245,166,35,.2)}
+.test-card .ic{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;color:#fff}
+.test-card h4{font-size:18px;margin:6px 0}
+.test-card p{font-size:13px;color:var(--muted);min-height:50px;line-height:1.7;margin:0}
+.test-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:12px;padding-top:12px;border-top:1px dashed var(--rule)}
+.quiz-box{background:#fff;border-radius:20px;padding:40px;box-shadow:var(--shadow);max-width:720px;margin:0 auto}
+.progress{height:8px;background:var(--rule);border-radius:4px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#F5A623,#FF8C42);border-radius:4px;transition:width .4s}
+.q-num{font-size:13px;color:var(--muted);margin-bottom:6px}
+.q-text{font-size:22px;font-weight:700;line-height:1.5;margin-bottom:24px}
+.q-options{display:flex;flex-direction:column;gap:10px}
+.q-opt{padding:16px 20px;border:2px solid var(--rule);border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:15px;transition:.2s}
+.q-opt:hover{border-color:var(--accent);background:var(--bg2)}
+.q-opt.sel{background:var(--bg2);border-color:var(--accent)}
+.q-opt .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--rule);flex-shrink:0;transition:.2s}
+.q-opt.sel .dot{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 4px #fff}
+.q-actions{display:flex;justify-content:space-between;margin-top:30px}
+.result-hero{background:linear-gradient(135deg,#FFE4B5,#7BC4A0);border-radius:20px;padding:40px;text-align:center;color:#fff;margin-bottom:24px}
+.result-score{font-size:80px;font-weight:900;line-height:1;margin:0}
+.result-level{font-size:28px;font-weight:700;margin:10px 0}
+.result-tip{font-size:14px;opacity:.95;max-width:600px;margin:14px auto 0;line-height:1.8}
+@media (max-width:900px){.tests-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="page-hero">
+    <h1>📋 心理测评</h1>
+    <p>专业心理量表 + 友好交互题面，5 分钟看清自己的状态。</p>
+</div>
+
+<div id="listView">
+    <div class="tests-grid">
+        <div class="test-card" data-test="phq9">
+            <div class="ic" style="background:linear-gradient(135deg,#FFB7B2,#F5A623)">😔</div>
+            <h4>PHQ-9 抑郁筛查</h4>
+            <p>9 题快速评估近两周的抑郁倾向，国际通用量表。</p>
+            <div class="test-meta"><span>9题·5分钟</span><span>已完成1.2k次</span></div>
+        </div>
+        <div class="test-card" data-test="gad7">
+            <div class="ic" style="background:linear-gradient(135deg,#A6D8E7,#7BC4A0)">😰</div>
+            <h4>GAD-7 焦虑评估</h4>
+            <p>7 题广泛性焦虑筛查，由 Spitzer 团队开发。</p>
+            <div class="test-meta"><span>7题·4分钟</span><span>已完成980次</span></div>
+        </div>
+        <div class="test-card" data-test="mbti" data-link="https://www.16personalities.com/chinese">
+            <div class="ic" style="background:linear-gradient(135deg,#9370DB,#6495ED)">🧩</div>
+            <h4>十六人格测试</h4>
+            <p>经典MBTI十六型人格测评，跳转外部专业测评页面。</p>
+            <div class="test-meta"><span>60题·外部链接</span><span>免费官方测评</span></div>
+        </div>
+        <div class="test-card" data-test="big5" style="opacity:.5;cursor:not-allowed">
+            <div class="ic" style="background:linear-gradient(135deg,#7BC4A0,#A6D8E7)">🧬</div>
+            <h4>大五人格测评</h4>
+            <p>50 题深入了解你的人格特质，敬请期待。</p>
+            <div class="test-meta"><span>50题</span><span>即将上线</span></div>
+        </div>
+        <div class="test-card" data-test="self" style="opacity:.5;cursor:not-allowed">
+            <div class="ic" style="background:linear-gradient(135deg,#FFB347,#FFB7B2)">🪞</div>
+            <h4>自尊量表 SES</h4>
+            <p>10 题测量你对自我的看法，敬请期待。</p>
+            <div class="test-meta"><span>10题</span><span>即将上线</span></div>
+        </div>
+        <div class="test-card" data-test="happy" style="opacity:.5;cursor:not-allowed">
+            <div class="ic" style="background:linear-gradient(135deg,#F5A623,#FFD580)">🌈</div>
+            <h4>主观幸福感量表</h4>
+            <p>测量你的幸福指数，敬请期待。</p>
+            <div class="test-meta"><span>20题</span><span>即将上线</span></div>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-head"><h3>📈 我的测评记录</h3></div>
+        <div id="historyBox"></div>
+    </div>
+</div>
+
+<div id="quizView" style="display:none">
+    <div class="quiz-box">
+        <div class="progress"><div class="progress-fill" id="pgFill"></div></div>
+        <div class="q-num" id="qNum">第1/9题</div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-options" id="qOptions"></div>
+        <div class="q-actions">
+            <button class="btn btn-ghost" id="prevBtn">← 上一题</button>
+            <button class="btn btn-primary" id="nextBtn">下一题 →</button>
+        </div>
+    </div>
+</div>
+
+<div id="resultView" style="display:none">
+    <div class="result-hero">
+        <div class="result-score" id="rScore">0</div>
+        <div class="result-level" id="rLevel">轻度</div>
+        <div class="result-tip" id="rTip"></div>
+    </div>
+    <div class="panel">
+        <div class="panel-head"><h3>📊 各维度得分</h3></div>
+        <div id="rChart" style="width:100%;height:300px"></div>
+    </div>
+    <div class="panel">
+        <div class="panel-head"><h3>💡 专业建议</h3></div>
+        <ul id="rAdvice" style="list-style:none;padding:0"></ul>
+        <div style="margin-top:16px">
+            <a class="btn btn-primary" href="appointment_tsll.html">📞 预约咨询</a>
+            <a class="btn btn-ghost" href="javascript:location.reload()">🔁 再测一次</a>
+        </div>
+    </div>
+</div>
+</main>
+
+<script src="../_shared/js/echarts.min.js"></script>
+<script src="../assets/js/site_tsll.js"></script>
+<script>
+injectTopbar('assess');injectContactBar();
+const user = requireLogin();
+const $ = id => document.getElementById(id);
+
+// 内置量表配置
+const TESTS = {
+phq9:{
+    name:'PHQ-9 抑郁筛查',max:27,
+    questions:['做事提不起兴趣、没有乐趣','感到心情低落、沮丧或绝望','入睡困难、易醒或睡眠过多','感到疲乏、没有精力','食欲不振或暴饮暴食','感到自己是失败者','注意力难以集中','行动/说话迟缓或烦躁','想不如死掉或自残'],
+    options:['完全没有(0)','几天(1)','一半以上时间(2)','几乎每天(3)'],
+    levels:[[0,4,'状态良好','状态不错，保持当下'],[5,9,'轻度抑郁','偶尔低落正常，多做喜欢的事'],[10,14,'中度抑郁','练习呼吸，必要时咨询'],[15,19,'中重度抑郁','尽快预约心理咨询'],[20,27,'重度抑郁','立刻联系心理老师或医生']]
+},
+gad7:{
+    name:'GAD-7 焦虑评估',max:21,
+    questions:['紧张焦虑急躁','无法停止担忧','过度担心各类事情','很难放松','坐立不安','容易烦躁','预感坏事发生'],
+    options:['完全没有(0)','几天(1)','一半以上时间(2)','几乎每天(3)'],
+    levels:[[0,4,'无焦虑','心态平稳'],[5,9,'轻度焦虑','偶尔焦虑无需紧张'],[10,14,'中度焦虑','坚持冥想放松'],[15,21,'重度焦虑','及时寻求专业帮助']]
+}
+};
+
+let curTest,curIdx=0,answers=[];
+
+// 卡片点击监听
+document.querySelectorAll('.test-card').forEach(card=>{
+card.onclick = ()=>{
+    const link = card.dataset.link;
+    const key = card.dataset.test;
+    if(link) return window.open(link,'_blank');
+    if(!TESTS[key]) return toast('该测评暂未上线','err');
+    curTest = TESTS[key];curIdx=0;answers=new Array(curTest.questions.length).fill(null);
+    $('listView').style.display='none';$('quizView').style.display='block';renderQ();
+}
+})
+
+// 渲染题目
+function renderQ(){
+const q = curTest.questions[curIdx];
+$('qNum').textContent = `${curTest.name} · 第${curIdx+1}/${curTest.questions.length}题`;
+$('qText').textContent = q;
+$('pgFill').style.width = ((curIdx+1)/curTest.questions.length*100)+'%';
+$('qOptions').innerHTML = curTest.options.map((opt,i)=>`
+<div class="q-opt ${answers[curIdx]===i?'sel':''}" data-i="${i}">
+    <div class="dot"></div>${opt}
+</div>`).join('');
+document.querySelectorAll('.q-opt').forEach(opt=>opt.onclick=()=>{answers[curIdx]=+opt.dataset.i;renderQ()});
+$('prevBtn').disabled = curIdx===0;
+$('nextBtn').textContent = curIdx == curTest.questions.length-1 ? '提交结果' : '下一题 →';
+}
+
+// 上一题
+$('prevBtn').onclick = ()=>curIdx>0 && (curIdx--,renderQ());
+
+// 下一题/提交
+$('nextBtn').onclick = ()=>{
+if(answers[curIdx]==null) return toast('请选择一项','err');
+curIdx == curTest.questions.length-1 ? showResult() : (curIdx++,renderQ());
+}
+
+// 计算得分展示结果
+function showResult(){
+const total = answers.reduce((a,b)=>a+b,0);
+let level,tip;
+for(let [lo,hi,l,t] of curTest.levels){
+    if(total>=lo && total<=hi){level=l;tip=t;break}
+}
+$('quizView').style.display='none';$('resultView').style.display='block';
+$('rScore').textContent = total+' / '+curTest.max;
+$('rLevel').textContent = level;$('rTip').textContent = tip;
+
+// 建议列表
+$('rAdvice').innerHTML = [
+    {i:'🌬️',t:'5分钟呼吸训练',h:'breath_tsll.html'},
+    {i:'📔',t:'情绪日记',h:'mood-list_tsll.html'},
+    {i:'🧘',t:'冥想空间',h:'meditation_tsll.html'},
+    {i:'📞',t:'预约心理咨询',h:'appointment_tsll.html'}
+].map(item=>`
+<li style="padding:10px 0;border-bottom:1px solid var(--rule)">
+    <a href="${item.h}" style="display:flex;gap:10px;align-items:center;color:var(--ink);text-decoration:none">
+        <span style="font-size:22px">${item.i}</span>${item.t}<span style="margin-left:auto;color:var(--accent)">→</span>
+    </a>
+</li>`).join('');
+
+// 本地存储记录
+const recordList = JSON.parse(localStorage.getItem('sm_tests_'+user.id)||'[]');
+recordList.unshift({id:Date.now(),test:curTest.name,score:total,max:curTest.max,level,time:Date.now(),answers:[...answers]});
+localStorage.setItem('sm_tests_'+user.id,JSON.stringify(recordList));
+logActivity('完成测评',{test:curTest.name,score:total});
+
+// ECharts柱状图
+const getVar = n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const chart = echarts.init($('rChart'),null,{renderer:'svg'});
+chart.setOption({
+tooltip:{appendToBody:true},grid:{left:50,right:30,top:30,bottom:40},
+xAxis:{type:'category',data:curTest.questions.map((_,i)=>'Q'+(i+1)),axisLabel:{color:getVar('--muted')}},
+yAxis:{type:'value',axisLabel:{color:getVar('--muted')},splitLine:{lineStyle:{color:getVar('--rule')}}},
+series:[{type:'bar',data:answers,itemStyle:{color:getVar('--accent'),borderRadius:[6,6,0,0]}}]
+})
+}
+
+// 渲染历史记录
+const history = JSON.parse(localStorage.getItem('sm_tests_'+(user?.id||0))||'[]');
+$('historyBox').innerHTML = history.length == 0
+? '<p style="color:var(--muted);text-align:center;padding:30px">暂无测评记录</p>'
+: history.slice(0,5).map(item=>`
+<div style="padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+    <div><strong>${item.test}</strong><br><small style="color:var(--muted)">${fmtTime(item.time)}</small></div>
+    <div style="text-align:right"><strong style="color:var(--accent);font-size:18px">${item.score}/${item.max}</strong><br><small>${item.level}</small></div>
+</div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>注册 · 晴心 SunlightMind</title>
+<style>
+:root{
+  --bg:#FFFCF5;
+  --bg2:#FFF5E1;
+  --ink:#4A3F35;
+  --muted:#9C8B7A;
+  --rule:#F0E5D2;
+  --accent:#F5A623;
+  --accent2:#7BC4A0;
+  --err:#E07A5F;
+  --ok:#7BC4A0
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft Yahei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex}
+
+.left-panel{
+  flex:1;
+  min-height:100vh;
+  position:relative;
+  background:radial-gradient(circle at 30% 30%,rgba(245,166,35,.4),transparent 50%),
+  linear-gradient(135deg,#FFE4B5 0%,#FFB7B2 50%,#7BC4A0 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden
+}
+.left-panel::before{
+  content:"";
+  position:absolute;
+  top:10%;
+  right:15%;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:radial-gradient(circle,#FFD580,#F5A623 70%,transparent);
+  box-shadow:0 0 80px rgba(245,166,35,.5);
+  animation:sun 5s ease-in-out infinite
+}
+@keyframes sun{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+.illust{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  color:#fff;
+  padding:40px
+}
+.illust .ph{
+  width:340px;
+  height:340px;
+  border-radius:50%;
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:140px;
+  margin:0 auto 30px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  position:relative;
+  overflow:hidden
+}
+.illust .ph img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0
+}
+.illust .ph.has-real .emoji{display:none}
+.illust .ph .emoji{position:relative;z-index:1}
+.illust h2{
+  font-size:42px;
+  font-weight:900;
+  margin-bottom:16px;
+  text-shadow:0 2px 8px rgba(0,0,0,.15)
+}
+.illust p{
+  font-size:18px;
+  opacity:.95;
+  line-height:1.8;
+  max-width:360px;
+  margin:0 auto
+}
+
+.brand-back{
+  position:absolute;
+  top:30px;
+  left:30px;
+  color:#fff;
+  text-decoration:none;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,.2);
+  backdrop-filter:blur(8px)
+}
+.brand-back:hover{background:rgba(255,255,255,.35)}
+
+.right-panel{
+  flex:1;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px
+}
+.form-card{
+  width:100%;
+  max-width:440px;
+  padding:50px 40px
+}
+.form-card h1{
+  font-size:32px;
+  font-weight:800;
+  margin-bottom:8px;
+  color:var(--ink)
+}
+.form-card .sub{
+  color:var(--muted);
+  margin-bottom:36px;
+  font-size:14px
+}
+
+.field{margin-bottom:20px}
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:8px;
+  color:var(--ink)
+}
+.field-row{
+  position:relative;
+  display:flex;
+  gap:10px
+}
+
+.input{
+  flex:1;
+  width:100%;
+  height:48px;
+  padding:0 16px;
+  border:2px solid var(--rule);
+  border-radius:12px;
+  background:#fff;
+  color:var(--ink);
+  font-size:15px;
+  outline:none;
+  transition:all .25s
+}
+.input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(245,166,35,.15)
+}
+.input.has-icon{padding-left:44px}
+
+.field-icon{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:18px;
+  pointer-events:none
+}
+.eye{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:18px
+}
+
+.code-btn{
+  height:48px;
+  padding:0 18px;
+  border:2px solid var(--accent);
+  background:transparent;
+  color:var(--accent);
+  border-radius:12px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all .2s
+}
+.code-btn:hover:not(:disabled){
+  background:var(--accent);
+  color:#fff
+}
+.code-btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+  border-color:var(--muted);
+  color:var(--muted)
+}
+
+.tip{
+  font-size:12px;
+  margin-top:6px;
+  min-height:16px
+}
+.tip.err{color:var(--err)}
+.tip.ok{color:var(--ok)}
+
+.strength{
+  display:flex;
+  gap:4px;
+  margin-top:8px
+}
+.strength span{
+  flex:1;
+  height:4px;
+  background:var(--rule);
+  border-radius:2px;
+  transition:background .2s
+}
+.strength.s1 span:nth-child(1){background:var(--err)}
+.strength.s2 span:nth-child(-n+2){background:#FFB347}
+.strength.s3 span:nth-child(-n+3){background:var(--ok)}
+.strength.s4 span{background:var(--accent2)}
+
+.agree{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin:24px 0;
+  font-size:13px;
+  color:var(--muted)
+}
+.agree input{
+  margin-top:3px;
+  accent-color:var(--accent)
+}
+.agree a{
+  color:var(--accent);
+  text-decoration:none
+}
+
+.btn-submit{
+  width:100%;
+  height:52px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:700;
+  background:linear-gradient(135deg,#F5A623,#FF8C42);
+  color:#fff;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(245,166,35,.4);
+  transition:all .25s
+}
+.btn-submit:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(245,166,35,.5)
+}
+.btn-submit:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none
+}
+
+.bottom{
+  text-align:center;
+  margin-top:24px;
+  font-size:14px;
+  color:var(--muted)
+}
+.bottom a{
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:600
+}
+
+.toast{
+  position:fixed;
+  top:24px;
+  left:50%;
+  transform:translateX(-50%) translateY(-200%);
+  background:var(--ink);
+  color:#fff;
+  padding:12px 24px;
+  border-radius:8px;
+  font-size:14px;
+  z-index:999;
+  transition:transform .35s
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--err)}
+
+@media (max-width:900px){
+  body{flex-direction:column}
+  .left-panel{min-height:280px}
+  .illust .ph{width:180px;height:180px;font-size:80px;margin-bottom:14px}
+  .illust h2{font-size:28px}
+  .illust p{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<aside class="left-panel">
+  <a class="brand-back" href="../index_tsll.html">← 返回首页</a>
+  <div class="illust">
+    <div class="ph">
+      <img src="../assets/images/register-illu.jpg" alt="注册插画" onload="this.parentElement.classList.add('has-real')" onerror="this.style.display='none'">
+      <span class="emoji">🌻</span>
+    </div>
+    <h2>开启心晴之旅</h2>
+    <p>每一次注册，都是给自己一束阳光的承诺。</p>
+  </div>
+</aside>
+
+<section class="right-panel">
+  <div class="form-card">
+    <h1>创建账户</h1>
+    <p class="sub">已有账户？<a href="login_tsll.html" style="color:var(--accent);text-decoration:none;font-weight:600">立即登录</a></p>
+
+    <form id="form" autocomplete="off">
+      <div class="field">
+        <label>用户名 / 昵称</label>
+        <div class="field-row">
+          <span class="field-icon">👤</span>
+          <input class="input has-icon" id="username" placeholder="3-12 位字母、数字、下划线" maxlength="12">
+        </div>
+        <div class="tip" id="tip-username"></div>
+      </div>
+
+      <div class="field">
+        <label>手机号</label>
+        <div class="field-row">
+          <span class="field-icon">📱</span>
+          <input class="input has-icon" id="phone" placeholder="11 位手机号" maxlength="11">
+        </div>
+        <div class="tip" id="tip-phone"></div>
+      </div>
+
+      <div class="field">
+        <label>验证码</label>
+        <div class="field-row">
+          <input class="input" id="code" placeholder="6 位数字验证码" maxlength="6" style="flex:1">
+          <button type="button" class="code-btn" id="getCode">获取验证码</button>
+        </div>
+        <div class="tip" id="tip-code"></div>
+      </div>
+
+      <div class="field">
+        <label>密码</label>
+        <div class="field-row">
+          <span class="field-icon">🔒</span>
+          <input class="input has-icon" id="password" type="password" placeholder="8-16 位，含字母、数字" maxlength="16">
+          <button type="button" class="eye" id="togglePwd">👁</button>
+        </div>
+        <div class="strength" id="strength"><span></span><span></span><span></span><span></span></div>
+        <div class="tip" id="tip-password"></div>
+      </div>
+
+      <div class="field">
+        <label>确认密码</label>
+        <div class="field-row">
+          <span class="field-icon">🔐</span>
+          <input class="input has-icon" id="password2" type="password" placeholder="再次输入密码" maxlength="16">
+        </div>
+        <div class="tip" id="tip-password2"></div>
+      </div>
+
+      <label class="agree">
+        <input type="checkbox" id="agree">
+        <span>我已阅读并同意 <a href="javascript:alert('用户协议：晴心承诺所有数据本地加密存储，不上传服务器，不与第三方共享。')">《用户协议》</a> 与 <a href="javascript:alert('隐私政策：我们使用 localStorage 在你的浏览器存储数据，你随时可以清空。')">《隐私政策》</a></span>
+      </label>
+
+      <button class="btn-submit" id="submit">立即注册</button>
+
+      <div class="bottom">注册即赠送 7 天会员体验 · 由 ts'll 小组用心打造</div>
+      <div style="margin-top:14px;padding:12px 16px;background:#FFF5E1;border-radius:10px;font-size:12px;color:#5e4f3f;text-align:center;line-height:1.8">
+        <b>📞 心理援助</b> · 校心理咨询中心 <b>0571-8820-1234</b> · 全国希望热线 <b>400-161-9995</b>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// 弹窗显示时间改为 4.5 秒
+const toast = (msg, type = '') => {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => {
+    t.className = 'toast ' + type;
+  }, 4500);
+};
+
+const setTip = (id, msg, ok) => {
+  const el = $('tip-' + id);
+  el.textContent = msg || '';
+  el.className = 'tip ' + (ok ? 'ok' : (msg ? 'err' : ''));
+};
+
+const REG = {
+  username: /^[a-zA-Z0-9_]{3,12}$/,
+  phone: /^1[3-9]\d{9}$/,
+  password: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d_!@#$%^&*]{8,16}$/,
+  code: /^\d{6}$/
+};
+
+// 用户名校验
+$('username').addEventListener('blur', e => {
+  const v = e.target.value.trim();
+  if (!v) return setTip('username', '请输入用户名');
+  if (!REG.username.test(v)) return setTip('username', '3-12 位字母、数字、下划线');
+  const users = JSON.parse(localStorage.getItem('sm_users') || '[]');
+  if (users.some(u => u.username === v)) return setTip('username', '该用户名已被使用');
+  setTip('username', '✓ 用户名可用', true);
+});
+
+// 手机号校验
+$('phone').addEventListener('blur', e => {
+  const v = e.target.value.trim();
+  if (!v) return setTip('phone', '请输入手机号');
+  if (!REG.phone.test(v)) return setTip('phone', '请输入正确的 11 位手机号');
+  setTip('phone', '✓ 格式正确', true);
+});
+
+// 获取验证码
+let timer = null;
+$('getCode').addEventListener('click', () => {
+  const phone = $('phone').value.trim();
+  if (!REG.phone.test(phone)) return toast('请先输入正确的手机号', 'err');
+
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  sessionStorage.setItem('sm_code_' + phone, code);
+  toast('📩 验证码已发送：' + code + '（演示模式）', 'ok');
+
+  let s = 60;
+  const btn = $('getCode');
+  btn.disabled = true;
+  btn.textContent = `${s} 秒后重发`;
+
+  timer = setInterval(() => {
+    s--;
+    if (s <= 0) {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.textContent = '获取验证码';
+    } else {
+      btn.textContent = `${s} 秒后重发`;
+    }
+  }, 1000);
+});
+
+// 密码强度
+$('password').addEventListener('input', e => {
+  const v = e.target.value;
+  let s = 0;
+  if (v.length >= 8) s++;
+  if (/[a-zA-Z]/.test(v)) s++;
+  if (/\d/.test(v)) s++;
+  if (/[_!@#$%^&*]/.test(v)) s++;
+
+  $('strength').className = 'strength s' + s;
+  if (!v) {
+    setTip('password', '');
+  } else if (!REG.password.test(v)) {
+    setTip('password', '需 8-16 位，至少包含字母与数字');
+  } else {
+    setTip('password', '✓ 密码强度合格', true);
+  }
+});
+
+// 确认密码
+$('password2').addEventListener('input', e => {
+  const v = e.target.value;
+  const p = $('password').value;
+  if (!v) return setTip('password2', '');
+  if (v !== p) return setTip('password2', '两次密码不一致');
+  setTip('password2', '✓ 两次密码一致', true);
+});
+
+// 显示/隐藏密码
+$('togglePwd').addEventListener('click', () => {
+  const inp = $('password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+// 提交注册
+$('submit').addEventListener('click', e => {
+  e.preventDefault();
+
+  const username = $('username').value.trim();
+  const phone = $('phone').value.trim();
+  const code = $('code').value.trim();
+  const password = $('password').value;
+  const password2 = $('password2').value;
+
+  if (!REG.username.test(username)) return toast('请检查用户名格式', 'err');
+  if (!REG.phone.test(phone)) return toast('请检查手机号格式', 'err');
+  if (!REG.code.test(code)) return toast('请输入 6 位数字验证码', 'err');
+  if (sessionStorage.getItem('sm_code_' + phone) !== code) return toast('验证码错误或已过期', 'err');
+  if (!REG.password.test(password)) return toast('请检查密码强度', 'err');
+  if (password !== password2) return toast('两次密码不一致', 'err');
+  if (!$('agree').checked) return toast('请阅读并同意用户协议', 'err');
+
+  const users = JSON.parse(localStorage.getItem('sm_users') || '[]');
+  if (users.some(u => u.username === username)) return toast('该用户名已被使用', 'err');
+
+  const newUser = {
+    id: Date.now(),
+    username,
+    phone,
+    password,
+    avatar: '🌻',
+    bio: '把每一束阳光都收进心里',
+    school: '浙江机电职业技术大学 · 人工智能学院',
+    joinDate: new Date().toISOString().slice(0, 10),
+    streak: 0,
+    points: 100
+  };
+
+  users.push(newUser);
+  localStorage.setItem('sm_users', JSON.stringify(users));
+  localStorage.setItem('sm_currentUser', JSON.stringify(newUser));
+
+  toast('🎉 注册成功！欢迎加入晴心…', 'ok');
+  setTimeout(() => {
+    location.href = '../index_tsll.html';
+  }, 1200);
+});
+
+// 插画点击动效
+const illu = document.querySelector('.illust .ph');
+if (illu) {
+  illu.style.cursor = 'pointer';
+  illu.style.transition = 'transform 0.18s ease, box-shadow 0.18s ease';
+  illu.addEventListener('click', () => {
+    // 缩放动画
+    illu.style.transform = 'scale(1.16)';
+    illu.style.boxShadow = '0 30px 86px rgba(0,0,0,.24)';
+    setTimeout(() => {
+      illu.style.transform = 'scale(1)';
+      illu.style.boxShadow = '0 20px 60px rgba(0,0,0,.15)';
+    }, 180);
+
+    // 内置兜底文案（接口加载失败时用）
+    const backupList = [
+      "愿你今日心绪平和，万事温柔✨",
+      "不必逼迫自己，接纳当下的所有情绪",
+      "生活藏满细碎温柔，你值得被好好对待",
+      "乌云终会散去，阳光永远为你等候",
+      "慢慢来，一切美好都会如期而至"
+    ];
+    const randomBackup = backupList[Math.floor(Math.random() * backupList.length)];
+
+    // 请求一言API
+    fetch('https://v1.hitokoto.cn/?c=d&c=i&encode=json')
+      .then(res => res.json())
+      .then(data => {
+        // 拼接句子+出处
+        let text = data.hitokoto;
+        if (data.from) text += ` ——${data.from}`;
+        toast(text, 'ok');
+      })
+      .catch(() => {
+        // 网络异常，弹出兜底文案
+        toast(randomBackup, 'ok');
+      });
+  });
+}
+</script>
+</body>
+</html>
