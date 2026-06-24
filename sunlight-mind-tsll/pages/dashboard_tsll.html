@@ -9,6 +9,19 @@
 <style>
 
 
+/* ===== 主题切换按钮 & 面板 ===== */
+.theme-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:.2s;margin-right:8px}
+.theme-btn:hover{background:rgba(255,255,255,.4);transform:scale(1.1)}
+.theme-panel{position:absolute;top:56px;right:16px;width:220px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.15);opacity:0;visibility:hidden;transform:translateY(-8px);transition:.25s;z-index:999}
+.theme-panel.show{opacity:1;visibility:visible;transform:translateY(0)}
+.theme-panel h4{margin:0 0 12px;font-size:14px;color:var(--ink)}
+.theme-option{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:.2s;margin-bottom:4px}
+.theme-option:hover{background:var(--bg2)}
+.theme-option.active{background:var(--cream);box-shadow:0 0 0 2px var(--accent)}
+.theme-colors{display:flex;gap:4px}
+.theme-colors span{width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.08)}
+.theme-option-label{font-size:13px;color:var(--ink);font-weight:500}
+
 /* ===== 容器 ===== */
 .wrap{max-width:1400px;margin:0 auto;padding:24px}
 
@@ -37,7 +50,7 @@
 .welcome-quote .wq-text{font-size:15px;line-height:1.8;font-weight:600;color:var(--ink)}
 .welcome-quote .wq-from{font-size:11px;color:var(--muted);margin-top:4px}
 .weather{position:relative;z-index:2;text-align:right}
-.weather-icon{font-size:81px;line-height:1}
+.weather-icon{font-size:80px;line-height:1}
 .weather-text{font-size:20px;color:var(--ink);opacity:.8;margin-top:6px}
 
 /* ===== 数字卡片 ===== */
@@ -185,6 +198,35 @@
     <a href="about_tsll.html">关于我们</a>
   </nav>
   <div class="user-block">
+    <!-- 主题切换 -->
+    <div class="theme-btn" id="themeToggle" title="切换主题色调">🎨</div>
+    <div class="theme-panel" id="themePanel">
+      <h4>选择界面色调</h4>
+      <div class="theme-option" data-theme="warm">
+        <div class="theme-colors"><span style="background:#FFFCF5"></span><span style="background:#F5A623"></span><span style="background:#FFB7B2"></span></div>
+        <span class="theme-option-label">暖阳橙</span>
+      </div>
+      <div class="theme-option" data-theme="ocean">
+        <div class="theme-colors"><span style="background:#F0F7FF"></span><span style="background:#4A90D9"></span><span style="background:#7BC4A0"></span></div>
+        <span class="theme-option-label">海洋蓝</span>
+      </div>
+      <div class="theme-option" data-theme="forest">
+        <div class="theme-colors"><span style="background:#F2F9F2"></span><span style="background:#5B9A6F"></span><span style="background:#A8D5BA"></span></div>
+        <span class="theme-option-label">森林绿</span>
+      </div>
+      <div class="theme-option" data-theme="lavender">
+        <div class="theme-colors"><span style="background:#F8F5FF"></span><span style="background:#9B8EC4"></span><span style="background:#D4B8E0"></span></div>
+        <span class="theme-option-label">薰衣草</span>
+      </div>
+      <div class="theme-option" data-theme="rose">
+        <div class="theme-colors"><span style="background:#FFF5F5"></span><span style="background:#E07A7A"></span><span style="background:#F5C6C6"></span></div>
+        <span class="theme-option-label">玫瑰粉</span>
+      </div>
+      <div class="theme-option" data-theme="dark">
+        <div class="theme-colors"><span style="background:#1A1A2E"></span><span style="background:#E94560"></span><span style="background:#533483"></span></div>
+        <span class="theme-option-label">暗夜模式</span>
+      </div>
+    </div>
     <a href="profile_tsll.html" id="userName" class="user-name" style="text-align:right;text-decoration:none;color:#fff">未登录<small>点此登录</small></a>
     <a href="profile_tsll.html" id="userAvatar" class="avatar">😊</a>
   </div>
@@ -410,7 +452,7 @@
   </section>
 </main>
 
-<script src="https://cdn.staticfile.org/echarts/5.4.3/echarts.min.js"></script>
+<script src="../_shared/js/echarts.min.js"></script>
 <script>
 /* ===== 用户态 ===== */
 const user = JSON.parse(localStorage.getItem('sm_currentUser')||'null');
@@ -605,6 +647,59 @@ document.querySelectorAll('.tab-btn').forEach(b=>{
     document.getElementById('mainTitle').textContent = titleMap[b.dataset.tab];
     setTimeout(()=>window.dispatchEvent(new Event('resize')),50);
   });
+});
+
+/* ===== 主题切换 ===== */
+const SM_THEMES = {
+  warm:{label:'暖阳橙',vars:{'--bg':'#FFFCF5','--bg2':'#FFF5E1','--ink':'#4A3F35','--muted':'#9C8B7A','--rule':'#F0E5D2','--accent':'#F5A623','--accent2':'#7BC4A0','--pink':'#FFB7B2','--sky':'#A6D8E7','--warm':'#FFDFA0','--err':'#E07A5F','--white':'#FFFFFF','--shadow':'0 8px 32px rgba(245,166,35,.1)'},topbar:'linear-gradient(135deg,#F5A623 0%,#FFB347 100%)'},
+  ocean:{label:'海洋蓝',vars:{'--bg':'#F0F7FF','--bg2':'#E1EFFE','--ink':'#2C3E50','--muted':'#7A8BA0','--rule':'#D6E4F0','--accent':'#4A90D9','--accent2':'#7BC4A0','--pink':'#A6D8E7','--sky':'#6BB5E0','--warm':'#B8D4F0','--err':'#E07A5F','--white':'#FFFFFF','--shadow':'0 8px 32px rgba(74,144,217,.1)'},topbar:'linear-gradient(135deg,#4A90D9 0%,#6BB5E0 100%)'},
+  forest:{label:'森林绿',vars:{'--bg':'#F2F9F2','--bg2':'#E0F0E0','--ink':'#2D4A2D','--muted':'#6B8A6B','--rule':'#D0E8D0','--accent':'#5B9A6F','--accent2':'#A8D5BA','--pink':'#C5E1A5','--sky':'#81C784','--warm':'#DCEDC8','--err':'#E07A5F','--white':'#FFFFFF','--shadow':'0 8px 32px rgba(91,154,111,.1)'},topbar:'linear-gradient(135deg,#5B9A6F 0%,#81C784 100%)'},
+  lavender:{label:'薰衣草',vars:{'--bg':'#F8F5FF','--bg2':'#EDE5F5','--ink':'#3D2E5C','--muted':'#8A7BA8','--rule':'#DDD0EE','--accent':'#9B8EC4','--accent2':'#D4B8E0','--pink':'#E8D5F5','--sky':'#C5A8E0','--warm':'#E8D5F5','--err':'#E07A5F','--white':'#FFFFFF','--shadow':'0 8px 32px rgba(155,142,196,.1)'},topbar:'linear-gradient(135deg,#9B8EC4 0%,#C5A8E0 100%)'},
+  rose:{label:'玫瑰粉',vars:{'--bg':'#FFF5F5','--bg2':'#FFE8E8','--ink':'#4A2C2C','--muted':'#A07070','--rule':'#F0D0D0','--accent':'#E07A7A','--accent2':'#F5C6C6','--pink':'#F5C6C6','--sky':'#F0A0A0','--warm':'#FFD5D5','--err':'#E07A5F','--white':'#FFFFFF','--shadow':'0 8px 32px rgba(224,122,122,.1)'},topbar:'linear-gradient(135deg,#E07A7A 0%,#F0A0A0 100%)'},
+  dark:{label:'暗夜模式',vars:{'--bg':'#1A1A2E','--bg2':'#16213E','--ink':'#E0E0E0','--muted':'#8899AA','--rule':'#2A2A4A','--accent':'#E94560','--accent2':'#533483','--pink':'#E94560','--sky':'#0F3460','--warm':'#533483','--err':'#E94560','--white':'#C0C8D8','--shadow':'0 8px 32px rgba(0,0,0,.3)'},topbar:'linear-gradient(135deg,#16213E 0%,#0F3460 100%)'}
+};
+
+function smApplyTheme(name){
+  const t = SM_THEMES[name]; if(!t) return;
+  const r = document.documentElement.style;
+  Object.entries(t.vars).forEach(([k,v])=> r.setProperty(k,v));
+  const topbar = document.querySelector('.topbar');
+  if(topbar) topbar.style.background = t.topbar;
+  localStorage.setItem('sm_theme', name);
+  document.querySelectorAll('.theme-option').forEach(el=>{
+    el.classList.toggle('active', el.dataset.theme===name);
+  });
+  // 触发图表重绘以应用新颜色
+  setTimeout(()=>window.dispatchEvent(new Event('resize')), 50);
+}
+
+function smInitTheme(){
+  const saved = localStorage.getItem('sm_theme') || 'warm';
+  if(SM_THEMES[saved]) smApplyTheme(saved);
+}
+
+// 主题面板交互
+document.addEventListener('DOMContentLoaded', ()=>{
+  const toggle = document.getElementById('themeToggle');
+  const panel = document.getElementById('themePanel');
+  if(toggle && panel){
+    toggle.addEventListener('click', e=>{
+      e.stopPropagation();
+      panel.classList.toggle('show');
+    });
+    document.addEventListener('click', e=>{
+      if(!e.target.closest('.theme-btn') && !e.target.closest('.theme-panel')){
+        panel.classList.remove('show');
+      }
+    });
+    panel.querySelectorAll('.theme-option').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        smApplyTheme(el.dataset.theme);
+        panel.classList.remove('show');
+      });
+    });
+    smInitTheme();
+  }
 });
 
 /* ===== ECharts ===== */
