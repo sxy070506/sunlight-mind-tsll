@@ -19,17 +19,271 @@
 .q-num{font-size:13px;color:var(--muted);margin-bottom:6px}
 .q-text{font-size:22px;font-weight:700;line-height:1.5;margin-bottom:24px}
 .q-options{display:flex;flex-direction:column;gap:10px}
-.q-opt{padding:16px 20px;border:2px solid var(--rule);border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:15px;transition:.2s}
-.q-opt:hover{border-color:var(--accent);background:var(--bg2)}
-.q-opt.sel{background:var(--bg2);border-color:var(--accent)}
-.q-opt .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--rule);flex-shrink:0;transition:.2s}
-.q-opt.sel .dot{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 4px #fff}
-.q-actions{display:flex;justify-content:space-between;margin-top:30px}
+/* 选择题样式不变 */
+.q-opt{
+  padding:16px 20px;
+  border:2px solid var(--rule);
+  border-radius:12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:15px;
+  transition: all 0.2s ease;
+  transform: scale(1);
+  position:relative;
+  overflow:hidden;
+}
+.q-opt:hover{
+  border-color:var(--accent);
+  background:var(--bg2);
+  transform: translateY(-2px);
+}
+.q-opt:active{
+  transform: scale(0.98);
+}
+.q-opt.sel{
+  background:var(--bg2);
+  border-color:var(--accent);
+  box-shadow: 0 0 0 4px rgba(245,166,35,0.15);
+}
+.q-opt .dot{
+  width:20px;height:20px;
+  border-radius:50%;
+  border:2px solid var(--rule);
+  flex-shrink:0;
+  transition: all 0.25s ease;
+}
+.q-opt.sel .dot{
+  border-color:var(--accent);
+  background:var(--accent);
+  box-shadow:inset 0 0 0 4px #fff
+}
+.q-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:30px}
+.q-actions .btn-wrap{display:flex;gap:12px}
 .result-hero{background:linear-gradient(135deg,#FFE4B5,#7BC4A0);border-radius:20px;padding:40px;text-align:center;color:#fff;margin-bottom:24px}
 .result-score{font-size:80px;font-weight:900;line-height:1;margin:0}
 .result-level{font-size:28px;font-weight:700;margin:10px 0}
 .result-tip{font-size:14px;opacity:.95;max-width:600px;margin:14px auto 0;line-height:1.8}
-@media (max-width:900px){.tests-grid{grid-template-columns:1fr}}
+/* 功能按钮通用样式 */
+.func-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.func-btn{
+  padding:8px 14px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:0.2s
+}
+.btn-copy{background:#fff;color:var(--ink);border:1px solid var(--rule)}
+.btn-know{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3)}
+.btn-mood{background:var(--accent2);color:#fff}
+.btn-save-draft{background:#7BC4A0;color:#fff}
+/* 本次测评高亮卡片 */
+.current-record{
+  padding:14px;background:linear-gradient(135deg,#FFF5D8,#E6F4EF);border-radius:12px;margin-bottom:12px;border-left:4px solid var(--accent);
+}
+.current-record h4{margin:0 0 6px;color:var(--accent)}
+/* 草稿卡片 */
+.draft-record{
+  padding:14px;background:#E6F4EF;border-radius:12px;margin-bottom:12px;border-left:4px solid #7BC4A0;
+}
+.draft-record h4{margin:0 0 6px;color:#2d8870}
+/* 弹窗遮罩 */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-box{
+  background:var(--bg);border-radius:16px;max-width:500px;width:100%;padding:24px;max-height:80vh;overflow-y:auto;
+}
+.modal-box h3{margin-top:0}
+.modal-close{
+  margin-top:16px;width:100%;padding:10px;border-radius:10px;border:none;background:var(--rule);cursor:pointer;
+}
+/* 记录删除按钮样式 */
+.record-del{
+  border:none;background:transparent;color:var(--err);font-size:13px;cursor:pointer;padding:4px 8px;border-radius:6px;
+  transition:0.2s
+}
+.record-del:hover{background:rgba(224,122,95,0.1)}
+.clear-all-btn{
+  margin-top:16px;width:100%;padding:10px;border:1px solid var(--err);color:var(--err);background:transparent;
+  border-radius:10px;cursor:pointer;transition:0.2s
+}
+.clear-all-btn:hover{background:var(--err);color:#fff}
+/* 礼花画布固定全屏，顶层不遮挡交互 */
+.confetti-canvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9999;
+}
+/* 结果页心情记录框 */
+.mood-log-block{
+  margin-top:18px;
+  background:rgba(255,255,255,0.15);
+  border-radius:14px;
+  padding:16px;
+  text-align:left;
+}
+.mood-log-title{
+  font-size:15px;
+  font-weight:600;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.mood-input{
+  width:100%;
+  box-sizing:border-box;
+  border:0;
+  border-radius:10px;
+  padding:10px 12px;
+  min-height:80px;
+  resize:none;
+  font-size:13px;
+  background:#ffffffdd;
+  color:#333;
+}
+.save-mood-btn{
+  margin-top:10px;
+  padding:7px 16px;
+  border-radius:9px;
+  border:none;
+  background:#fff;
+  cursor:pointer;
+  transition:.2s;
+}
+.save-mood-btn:hover{
+  background:#F5A623;
+  color:#fff;
+}
+
+/* ========== 测评记录卡片美化 + 星星评分组件 ========== */
+.history-item-card{
+  background:#ffffff;
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:14px;
+  box-shadow:0 2px 14px rgba(0,0,0,0.05);
+  border:1px solid #f0f0f0;
+  transition:0.2s;
+}
+.history-item-card:hover{
+  box-shadow:0 4px 20px rgba(245,166,35,0.08);
+}
+.item-header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+.item-left-info{
+  flex:1;
+}
+.item-test-name{
+  font-size:16px;
+  font-weight:600;
+  color:#222;
+}
+.item-time-text{
+  font-size:12px;
+  color:#999;
+  margin-top:3px;
+}
+.item-score-badge{
+  padding:8px 14px;
+  background:linear-gradient(120deg,#FFF2D9,#FFE9CC);
+  border-radius:12px;
+  text-align:center;
+  min-width:70px;
+}
+.big-score{
+  font-size:19px;
+  font-weight:bold;
+  color:#F5A623;
+  line-height:1;
+}
+.level-text{
+  font-size:12px;
+  color:#666;
+  margin-top:3px;
+}
+/* 自评模块容器 */
+.self-assess-wrap{
+  background:#fafafa;
+  border-radius:14px;
+  padding:16px;
+}
+.assess-title{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:14px;
+  font-weight:500;
+  color:#333;
+  margin-bottom:14px;
+}
+/* 星星评分容器 */
+.star-rate-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.star-wrap{
+  display:flex;
+  gap:6px;
+}
+.star-item{
+  font-size:28px;
+  cursor:pointer;
+  color:#ddd;
+  transition:0.2s;
+  user-select:none;
+}
+.star-item.active,
+.star-item:hover{
+  color:#F5A623;
+}
+/* 评价输入框 */
+.assess-textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #e5e5e5;
+  border-radius:12px;
+  padding:11px 14px;
+  min-height:85px;
+  resize:none;
+  font-size:13px;
+  background:#fff;
+  transition:0.2s;
+}
+.assess-textarea:focus{
+  outline:none;
+  border-color:#F5A623;
+  box-shadow:0 0 0 4px rgba(245,166,35,0.1);
+}
+/* 历史心情记录展示 */
+.history-mood-log{
+  margin-top:12px;
+  padding:10px 12px;
+  background:#fff;
+  border-radius:10px;
+  font-size:13px;
+  color:#444;
+  border-left:3px solid #7BC4A0;
+}
+
+@media (max-width:900px){
+  .tests-grid{grid-template-columns:1fr}
+  .item-header-row{flex-wrap:wrap;gap:8px}
+}
 </style>
 </head>
 <body>
@@ -80,7 +334,10 @@
     </div>
     <div class="panel">
         <div class="panel-head"><h3>📈 我的测评记录</h3></div>
+        <div id="draftBox"></div>
+        <div id="currentRecordBox"></div>
         <div id="historyBox"></div>
+        <button class="clear-all-btn" id="clearAllRecord">清空所有测评记录</button>
     </div>
 </div>
 
@@ -91,7 +348,10 @@
         <div class="q-text" id="qText"></div>
         <div class="q-options" id="qOptions"></div>
         <div class="q-actions">
-            <button class="btn btn-ghost" id="prevBtn">← 上一题</button>
+            <div class="btn-wrap">
+                <button class="btn btn-ghost" id="prevBtn">← 上一题</button>
+                <button class="func-btn btn-save-draft" id="saveDraftBtn">💾 保存当前进度</button>
+            </div>
             <button class="btn btn-primary" id="nextBtn">下一题 →</button>
         </div>
     </div>
@@ -99,24 +359,46 @@
 
 <div id="resultView" style="display:none">
     <div class="result-hero">
+        <div class="func-row">
+            <button class="func-btn btn-know" id="openKnow">📖 量表科普</button>
+            <button class="func-btn btn-copy" id="copyReport">📋 复制测评报告</button>
+        </div>
         <div class="result-score" id="rScore">0</div>
         <div class="result-level" id="rLevel">轻度</div>
         <div class="result-tip" id="rTip"></div>
+
+        <!-- 填写本次心情事件 -->
+        <div class="mood-log-block">
+            <div class="mood-log-title">📝 记录本次测评当下心情与发生的事</div>
+            <textarea class="mood-input" id="currentMoodInput" placeholder="写下此刻心情、近期影响情绪的事件，方便后续回顾..."></textarea>
+            <button class="save-mood-btn" id="saveCurrentMood">保存心情记录</button>
+        </div>
     </div>
     <div class="panel">
         <div class="panel-head"><h3>📊 各维度得分</h3></div>
         <div id="rChart" style="width:100%;height:300px"></div>
     </div>
+    <!-- 原版专业建议完全保留，无修改无增减 -->
     <div class="panel">
         <div class="panel-head"><h3>💡 专业建议</h3></div>
         <ul id="rAdvice" style="list-style:none;padding:0"></ul>
-        <div style="margin-top:16px">
+        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
             <a class="btn btn-primary" href="appointment_tsll.html">📞 预约咨询</a>
             <a class="btn btn-ghost" href="javascript:location.reload()">🔁 再测一次</a>
+            <a class="func-btn btn-mood" href="mood-list_tsll.html">📔 记录当下心情</a>
         </div>
     </div>
 </div>
-</main>
+<!-- 量表科普弹窗 -->
+<div class="modal-mask" id="knowModal">
+    <div class="modal-box">
+        <h3 id="modalTitle">量表介绍</h3>
+        <div id="modalContent"></div>
+        <button class="modal-close" id="closeModal">关闭</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script src="../_shared/js/echarts.min.js"></script>
 <script src="../assets/js/site_tsll.js"></script>
@@ -125,37 +407,112 @@ injectTopbar('assess');injectContactBar();
 const user = requireLogin();
 const $ = id => document.getElementById(id);
 
+// 仅结果页触发礼花
+function createConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'confetti-canvas';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ['#F5A623','#7BC4A0','#FFB7B2','#A6D8E7','#9370DB','#FFD580'];
+  const particles = [];
+  const count = 120;
+  const startX = canvas.width / 2;
+  const startY = 80;
+  for(let i=0;i<count;i++){
+    particles.push({
+      x:startX,y:startY,size: Math.random() * 6 + 4,
+      speedX: (Math.random() - 0.5) * 10,
+      speedY: (Math.random() - 0.8) * 10 - 4,
+      gravity: 0.18,opacity:1,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rotate: Math.random() * 360,rotateSpeed: (Math.random()-0.5)*8
+    })
+  }
+  let frame;
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    for(let p of particles){
+      p.x += p.speedX;
+      p.y += p.speedY;
+      p.speedY += p.gravity;
+      p.opacity -= 0.012;
+      p.rotate += p.rotateSpeed;
+      if(p.opacity > 0){
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotate * Math.PI / 180);
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        ctx.restore();
+      }
+    }
+    if(alive) frame = requestAnimationFrame(render);
+    else {cancelAnimationFrame(frame);canvas.remove();}
+  }
+  render();
+}
+
 // 内置量表配置
 const TESTS = {
 phq9:{
     name:'PHQ-9 抑郁筛查',max:27,
+    desc:`PHQ-9是国际通用抑郁筛查量表，共9道题目，评估近两周抑郁相关情绪、行为症状。
+适用人群：自我感觉情绪低落、兴趣减退、睡眠食欲异常人群。
+评分标准：0-4无明显抑郁；5-9轻度；10-14中度；15-19中重度；20-27重度。
+提示：量表仅作筛查参考，不能替代精神科医生诊断。`,
     questions:['做事提不起兴趣、没有乐趣','感到心情低落、沮丧或绝望','入睡困难、易醒或睡眠过多','感到疲乏、没有精力','食欲不振或暴饮暴食','感到自己是失败者','注意力难以集中','行动/说话迟缓或烦躁','想不如死掉或自残'],
     options:['完全没有(0)','几天(1)','一半以上时间(2)','几乎每天(3)'],
     levels:[[0,4,'状态良好','状态不错，保持当下'],[5,9,'轻度抑郁','偶尔低落正常，多做喜欢的事'],[10,14,'中度抑郁','练习呼吸，必要时咨询'],[15,19,'中重度抑郁','尽快预约心理咨询'],[20,27,'重度抑郁','立刻联系心理老师或医生']]
 },
 gad7:{
     name:'GAD-7 焦虑评估',max:21,
+    desc:`GAD-7广泛性焦虑量表，7题评估近两周持续焦虑、紧张、担忧状态。
+适用人群：经常莫名紧张、胡思乱想、无法放松、坐立不安人群。
+评分标准：0-4无焦虑；5-9轻度；10-14中度；15-21重度。
+提示：结果仅作情绪参考，长期严重焦虑请寻求专业心理干预。`,
     questions:['紧张焦虑急躁','无法停止担忧','过度担心各类事情','很难放松','坐立不安','容易烦躁','预感坏事发生'],
     options:['完全没有(0)','几天(1)','一半以上时间(2)','几乎每天(3)'],
     levels:[[0,4,'无焦虑','心态平稳'],[5,9,'轻度焦虑','偶尔焦虑无需紧张'],[10,14,'中度焦虑','坚持冥想放松'],[15,21,'重度焦虑','及时寻求专业帮助']]
 }
 };
 
-let curTest,curIdx=0,answers=[];
+let curTest,curIdx=0,answers=[],lastRecord=null;
+let currentResultId = null;
+const DRAFT_KEY = 'sm_test_draft_' + user.id;
+const RECORD_KEY = 'sm_tests_' + user.id;
 
-// 卡片点击监听
+// 卡片点击
 document.querySelectorAll('.test-card').forEach(card=>{
 card.onclick = ()=>{
     const link = card.dataset.link;
     const key = card.dataset.test;
-    if(link) return window.open(link,'_blank');
+    if(link){
+        const today = new Date().toLocaleDateString();
+        const mbtiRecord = JSON.parse(localStorage.getItem('sm_mbti_get')||'{}');
+        if(mbtiRecord.date !== today){
+            const userData = JSON.parse(localStorage.getItem('sm_currentUser'));
+            userData.points += 10;
+            localStorage.setItem('sm_currentUser', JSON.stringify(userData));
+            localStorage.setItem('sm_mbti_get', JSON.stringify({date:today}));
+            toast('🧩 成功领取10积分！每日仅可领取一次','ok');
+        }else{
+            toast('今日已领取过MBTI积分，明天再来~','err');
+        }
+        return window.open(link,'_blank','noopener noreferrer');
+    }
     if(!TESTS[key]) return toast('该测评暂未上线','err');
+    localStorage.removeItem(DRAFT_KEY);
     curTest = TESTS[key];curIdx=0;answers=new Array(curTest.questions.length).fill(null);
     $('listView').style.display='none';$('quizView').style.display='block';renderQ();
 }
 })
 
-// 渲染题目
+// 渲染题目（移除选项点击撒花）
 function renderQ(){
 const q = curTest.questions[curIdx];
 $('qNum').textContent = `${curTest.name} · 第${curIdx+1}/${curTest.questions.length}题`;
@@ -165,32 +522,54 @@ $('qOptions').innerHTML = curTest.options.map((opt,i)=>`
 <div class="q-opt ${answers[curIdx]===i?'sel':''}" data-i="${i}">
     <div class="dot"></div>${opt}
 </div>`).join('');
-document.querySelectorAll('.q-opt').forEach(opt=>opt.onclick=()=>{answers[curIdx]=+opt.dataset.i;renderQ()});
+document.querySelectorAll('.q-opt').forEach(opt=>{
+    opt.onclick = function(){
+        answers[curIdx]=+this.dataset.i;
+        renderQ();
+    }
+});
 $('prevBtn').disabled = curIdx===0;
 $('nextBtn').textContent = curIdx == curTest.questions.length-1 ? '提交结果' : '下一题 →';
 }
 
-// 上一题
+// 保存草稿
+$('saveDraftBtn').onclick = function(){
+    const draftData = {
+        testKey: Object.keys(TESTS).find(k=>TESTS[k].name === curTest.name),
+        testName: curTest.name,
+        curIdx,
+        answers: [...answers],
+        totalQ: curTest.questions.length,
+        saveTime: Date.now()
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+    toast('✅ 答题进度已保存，可稍后继续作答','ok');
+}
+
 $('prevBtn').onclick = ()=>curIdx>0 && (curIdx--,renderQ());
 
-// 下一题/提交
 $('nextBtn').onclick = ()=>{
 if(answers[curIdx]==null) return toast('请选择一项','err');
 curIdx == curTest.questions.length-1 ? showResult() : (curIdx++,renderQ());
 }
 
-// 计算得分展示结果
+// 展示结果
 function showResult(){
 const total = answers.reduce((a,b)=>a+b,0);
 let level,tip;
 for(let [lo,hi,l,t] of curTest.levels){
     if(total>=lo && total<=hi){level=l;tip=t;break}
 }
+createConfetti();
 $('quizView').style.display='none';$('resultView').style.display='block';
 $('rScore').textContent = total+' / '+curTest.max;
 $('rLevel').textContent = level;$('rTip').textContent = tip;
 
-// 建议列表
+lastRecord = {
+  name:curTest.name,score:total,max:curTest.max,level,tip,time:new Date().toLocaleString()
+};
+
+// 原版建议列表，完全未改动
 $('rAdvice').innerHTML = [
     {i:'🌬️',t:'5分钟呼吸训练',h:'breath_tsll.html'},
     {i:'📔',t:'情绪日记',h:'mood-list_tsll.html'},
@@ -203,13 +582,40 @@ $('rAdvice').innerHTML = [
     </a>
 </li>`).join('');
 
-// 本地存储记录
-const recordList = JSON.parse(localStorage.getItem('sm_tests_'+user.id)||'[]');
-recordList.unshift({id:Date.now(),test:curTest.name,score:total,max:curTest.max,level,time:Date.now(),answers:[...answers]});
-localStorage.setItem('sm_tests_'+user.id,JSON.stringify(recordList));
+const recordList = JSON.parse(localStorage.getItem(RECORD_KEY)||'[]');
+const newRec = {
+    id:Date.now(),
+    test:curTest.name,
+    score:total,
+    max:curTest.max,
+    level,
+    time:Date.now(),
+    answers:[...answers],
+    selfStar: 3, // 替换为星星分值 0-5
+    selfComment: '',
+    moodLog: ''
+};
+recordList.unshift(newRec);
+currentResultId = newRec.id;
+localStorage.setItem(RECORD_KEY, JSON.stringify(recordList));
 logActivity('完成测评',{test:curTest.name,score:total});
+localStorage.removeItem(DRAFT_KEY);
 
-// ECharts柱状图
+$('currentMoodInput').value = '';
+// 保存本次心情记录
+$('saveCurrentMood').onclick = function(){
+    const content = $('currentMoodInput').value.trim();
+    if(!content) return toast('请填写内容后保存','err');
+    const list = JSON.parse(localStorage.getItem(RECORD_KEY));
+    const target = list.find(r=>r.id === currentResultId);
+    if(target){
+        target.moodLog = content;
+        localStorage.setItem(RECORD_KEY, JSON.stringify(list));
+        toast('心情记录已保存，历史记录可查看','ok');
+    }
+}
+
+// 图表渲染
 const getVar = n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const chart = echarts.init($('rChart'),null,{renderer:'svg'});
 chart.setOption({
@@ -218,17 +624,205 @@ xAxis:{type:'category',data:curTest.questions.map((_,i)=>'Q'+(i+1)),axisLabel:{c
 yAxis:{type:'value',axisLabel:{color:getVar('--muted')},splitLine:{lineStyle:{color:getVar('--rule')}}},
 series:[{type:'bar',data:answers,itemStyle:{color:getVar('--accent'),borderRadius:[6,6,0,0]}}]
 })
+renderHistory();
 }
 
-// 渲染历史记录
-const history = JSON.parse(localStorage.getItem('sm_tests_'+(user?.id||0))||'[]');
-$('historyBox').innerHTML = history.length == 0
-? '<p style="color:var(--muted);text-align:center;padding:30px">暂无测评记录</p>'
-: history.slice(0,5).map(item=>`
-<div style="padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-    <div><strong>${item.test}</strong><br><small style="color:var(--muted)">${fmtTime(item.time)}</small></div>
-    <div style="text-align:right"><strong style="color:var(--accent);font-size:18px">${item.score}/${item.max}</strong><br><small>${item.level}</small></div>
-</div>`).join('');
+// 渲染草稿+美化历史记录（星星评分）
+function renderHistory(){
+    // 草稿卡片
+    const draftStr = localStorage.getItem(DRAFT_KEY);
+    if(draftStr){
+        const draft = JSON.parse(draftStr);
+        $('draftBox').innerHTML = `
+        <div class="draft-record">
+            <h4>📝 未完成测评草稿</h4>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span>${draft.testName} · 已答${draft.curIdx+1}/${draft.totalQ}题</span>
+                <div style="display:flex;gap:8px">
+                    <button class="btn btn-primary" id="continueDraftBtn">继续作答</button>
+                    <button class="record-del" id="delDraftBtn">删除草稿</button>
+                </div>
+            </div>
+        </div>`;
+        $('continueDraftBtn').onclick = function(){
+            curTest = TESTS[draft.testKey];
+            curIdx = draft.curIdx;
+            answers = draft.answers;
+            $('listView').style.display='none';
+            $('quizView').style.display='block';
+            renderQ();
+        }
+        $('delDraftBtn').onclick = function(){
+            localStorage.removeItem(DRAFT_KEY);
+            renderHistory();
+            toast('草稿已删除','ok');
+        }
+    }else{
+        $('draftBox').innerHTML = '';
+    }
+
+    // 本次测评高亮卡片
+    if(lastRecord){
+      $('currentRecordBox').innerHTML = `
+      <div class="current-record">
+        <h4>✨ 本次测评结果</h4>
+        <div style="display:flex;justify-content:space-between">
+          <span>${lastRecord.name} · ${lastRecord.time}</span>
+          <span style="color:var(--accent);font-weight:bold">${lastRecord.score}/${lastRecord.max} · ${lastRecord.level}</span>
+        </div>
+      </div>`;
+    }else{
+      $('currentRecordBox').innerHTML = '';
+    }
+
+    // 渲染历史记录
+    const history = JSON.parse(localStorage.getItem(RECORD_KEY)||'[]');
+    $('historyBox').innerHTML = history.length == 0
+    ? '<p style="color:var(--muted);text-align:center;padding:30px">暂无测评记录</p>'
+    : history.map(item=>{
+        const starNum = item.selfStar ?? 3;
+        // 生成5颗星星html
+        let starHtml = '';
+        for(let i=1;i<=5;i++){
+            const active = i <= starNum ? 'active' : '';
+            starHtml += `<span class="star-item ${active}" data-star="${i}">★</span>`;
+        }
+        return `
+        <div class="history-item-card" data-rec-id="${item.id}">
+            <div class="item-header-row">
+                <div class="item-left-info">
+                    <div class="item-test-name">${item.test}</div>
+                    <div class="item-time-text">${fmtTime(item.time)}</div>
+                </div>
+                <div class="item-score-badge">
+                    <div class="big-score">${item.score}/${item.max}</div>
+                    <div class="level-text">${item.level}</div>
+                </div>
+                <button class="record-del" data-record-id="${item.id}">删除</button>
+            </div>
+            <div class="self-assess-wrap">
+                <div class="assess-title">🧡 自我情绪星级评分 & 个人感受</div>
+                <div class="star-rate-row">
+                    <div class="star-wrap">
+                        ${starHtml}
+                    </div>
+                    <span style="font-size:13px;color:#666">${starNum}/5 星</span>
+                </div>
+                <textarea class="assess-textarea self-comment" placeholder="写下本次测评后的内心感受、想法..." >${item.selfComment ?? ''}</textarea>
+                ${item.moodLog ? `<div class="history-mood-log">📌 当时记录的心情事件：${item.moodLog}</div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+
+    // 删除单条记录
+    document.querySelectorAll('.record-del').forEach(btn=>{
+        btn.onclick = function(){
+            const delId = Number(this.dataset.recordId);
+            let list = JSON.parse(localStorage.getItem(RECORD_KEY));
+            list = list.filter(item=>item.id !== delId);
+            localStorage.setItem(RECORD_KEY, JSON.stringify(list));
+            toast('已删除该条测评记录','ok');
+            renderHistory();
+        }
+    })
+
+    // 星星点击打分 + 文本框自动保存
+    document.querySelectorAll('.history-item-card').forEach(block=>{
+        const recId = Number(block.dataset.recId);
+        const starWrap = block.querySelector('.star-wrap');
+        const starItems = block.querySelectorAll('.star-item');
+        const textarea = block.querySelector('.self-comment');
+        const starTip = block.querySelector('.star-rate-row span');
+
+        // 星星点击赋值
+        starItems.forEach(star=>{
+            star.onclick = function(){
+                const val = Number(this.dataset.star);
+                // 更新星星激活状态
+                starItems.forEach(s=>{
+                    if(Number(s.dataset.star) <= val) s.classList.add('active');
+                    else s.classList.remove('active');
+                })
+                starTip.textContent = `${val}/5 星`;
+                saveSelfStarRecord(recId, val, textarea.value);
+            }
+            // hover 预览
+            star.onmouseover = function(){
+                const hoverVal = Number(this.dataset.star);
+                starItems.forEach(s=>{
+                    if(Number(s.dataset.star) <= hoverVal) s.style.color = '#F5A623';
+                    else s.style.color = '#ddd';
+                })
+            }
+            starWrap.onmouseleave = function(){
+                const curVal = Number(block.querySelector('.star-item.active')?.dataset.star || 0);
+                starItems.forEach(s=>{
+                    if(Number(s.dataset.star) <= curVal) s.style.color = '#F5A623';
+                    else s.style.color = '#ddd';
+                })
+            }
+        })
+
+        // 评价文本实时保存
+        textarea.oninput = function(){
+            const curStar = Number(block.querySelector('.star-item.active')?.dataset.star || 0);
+            saveSelfStarRecord(recId, curStar, this.value);
+        }
+    })
+}
+
+// 保存星星评分+文字评价
+function saveSelfStarRecord(recordId, star, comment){
+    const list = JSON.parse(localStorage.getItem(RECORD_KEY));
+    const target = list.find(r=>r.id === recordId);
+    if(target){
+        target.selfStar = star;
+        target.selfComment = comment;
+        localStorage.setItem(RECORD_KEY, JSON.stringify(list));
+    }
+}
+
+// 清空全部
+$('clearAllRecord').onclick = ()=>{
+    if(confirm('确定清空所有测评记录与草稿？删除后无法恢复！')){
+        localStorage.removeItem(RECORD_KEY);
+        localStorage.removeItem(DRAFT_KEY);
+        lastRecord = null;
+        currentResultId = null;
+        renderHistory();
+        toast('已清空全部记录与草稿','ok');
+    }
+}
+
+// 复制报告
+$('copyReport').onclick = async ()=>{
+  const text = `【${lastRecord.name}测评报告】
+测评时间：${lastRecord.time}
+总分：${lastRecord.score}/${lastRecord.max}
+情绪等级：${lastRecord.level}
+解读：${lastRecord.tip}`;
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('测评报告已复制到剪贴板','ok');
+  }catch{
+    toast('复制失败，请手动复制','err');
+  }
+}
+
+// 量表科普弹窗
+$('openKnow').onclick = ()=>{
+  $('modalTitle').textContent = curTest.name + " 量表科普";
+  $('modalContent').innerText = curTest.desc;
+  $('knowModal').style.display = 'flex';
+}
+$('closeModal').onclick = ()=>{
+  $('knowModal').style.display = 'none';
+}
+$('knowModal').onclick = e=>{
+  if(e.target === $('knowModal')) $('knowModal').style.display = 'none';
+}
+
+renderHistory();
 </script>
 </body>
 </html>
